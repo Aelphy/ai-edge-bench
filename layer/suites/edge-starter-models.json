@@ -1,0 +1,32 @@
+{
+  "name": "edge-starter-models",
+  "description": "Day-1 scouted <= 4B on-device Gemma 3/4 and Qwen 3/3.5 canonical layer archetypes resolved from layer/catalog/gemma_qwen_edge.json.",
+  "catalog": "../catalog/gemma_qwen_edge.json",
+  "hyperparams": "../catalog/hyperparams.json",
+  "models": [
+    "Gemma3-270M",
+    "Gemma3-1B",
+    "Gemma3-4B",
+    "Gemma4-E2B",
+    "Gemma4-E4B",
+    "Qwen3-0.6B",
+    "Qwen3-1.7B",
+    "Qwen3-4B",
+    "Qwen3.5-0.8B"
+  ],
+  "deduplicate_identical_presets": true,
+  "regime": "edge_starter_sweep",
+  "quant_scheme": "fp32",
+  "cliff_sweep": "none",
+  "families": [
+    "BM_RmsNorm",
+    "BM_RoPE",
+    "BM_GatedMlp_SwiGLU",
+    "BM_GatedMlp_GeGLU",
+    "BM_StandardAttention_Prefill",
+    "BM_StandardAttention_Decode",
+    "BM_DecodeOptimizedAttention",
+    "BM_TransformerBlock_Prefill",
+    "BM_TransformerBlock_Decode"
+  ]
+}

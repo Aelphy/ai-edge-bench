@@ -1,0 +1,21 @@
+{
+  "name": "gemma4-31b-sapphire-rapids",
+  "description": "Gemma 4 31B hybrid local sliding-window (50 layers, D=256, H_kv=16, W=1024) and global full-attention (10 layers, D=512, H_kv=4, K=V) blocks calibrated against Intel Sapphire Rapids hardware ceiling probes.",
+  "catalog": "../catalog/gemma_qwen_edge.json",
+  "hyperparams": "../catalog/hyperparams.json",
+  "models": ["Gemma4-31B"],
+  "regime": "sapphire_rapids_core",
+  "quant_scheme": "fp32",
+  "machine": "sapphire-rapids",
+  "cliff_sweep": "none",
+  "families": [
+    "BM_RmsNorm",
+    "BM_RoPE",
+    "BM_GatedMlp_GeGLU",
+    "BM_StandardAttention_Prefill",
+    "BM_StandardAttention_Decode",
+    "BM_DecodeOptimizedAttention",
+    "BM_TransformerBlock_Prefill",
+    "BM_TransformerBlock_Decode"
+  ]
+}

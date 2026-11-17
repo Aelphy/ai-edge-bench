@@ -3,7 +3,7 @@
 #   make base                       # build shared aeb/base container (docker/base/)
 #   make kernel-probes              # run Level 1 hardware ceiling probes
 #   make kernel-bench               # run Level 1 microkernel / shader benchmarks
-#   make layer-bench                # run Level 2 compound subgraph benchmarks
+#   make MACHINE=<m> layer-bench    # run Level 2 compound subgraph benchmarks
 #   make MACHINE=dgx-spark bench    # run Level 3 model benchmarks (delegates to model/)
 #   make test                       # run unit tests across kernel, layer, and model
 
@@ -34,7 +34,7 @@ help:
 	@echo "    make kernel-test                run kernel validation tests"
 	@echo
 	@echo "  Level 2 — Layer Tier (layer/):"
-	@echo "    make layer-bench                run compound subgraph suites (Tensor API & runtimes)"
+	@echo "    make MACHINE=<m> layer-bench    run compound subgraph suites (Tensor API & runtimes)"
 	@echo "    make layer-test                 run layer subgraph tests"
 	@echo
 	@echo "  Level 3 — Model Tier (model/):"
@@ -67,10 +67,10 @@ kernel-test:
 	$(MAKE) -C kernel MACHINE=$(MACHINE) test
 
 layer-bench:
-	$(MAKE) -C layer MACHINE=$(MACHINE) bench
+	$(MAKE) -C layer $(if $(filter-out undefined default file,$(origin MACHINE)),MACHINE="$(MACHINE)",) $(if $(SUITE),SUITE=$(SUITE),) $(if $(THREADS),THREADS=$(THREADS),) $(if $(SEQ_LEN),SEQ_LEN=$(SEQ_LEN),) $(if $(BATCH_SIZE),BATCH_SIZE=$(BATCH_SIZE),) $(if $(MIN_TIME),MIN_TIME=$(MIN_TIME),) $(if $(filter-out undefined,$(origin MACHINE_PROFILE)),MACHINE_PROFILE="$(MACHINE_PROFILE)",) bench
 
 layer-test:
-	$(MAKE) -C layer MACHINE=$(MACHINE) test
+	$(MAKE) -C layer test
 
 model-test:
 	$(MAKE) -C model MACHINE=$(MACHINE) test

@@ -150,6 +150,8 @@ dashboard:
 test:
 	$(COMPOSE) --profile tools run --rm -v $(CURDIR)/docker/harness:/opt/aeb/harness:ro \
 	  -v $(CURDIR)/scripts:/opt/scripts:ro \
+	  -v $(CURDIR)/../kernel:/kernel:ro \
+	  -v $(CURDIR)/../layer:/layer:ro \
 	  -v $(CURDIR)/suites:/opt/suites:ro --entrypoint python3 tools \
 	  -m unittest discover -s /opt/aeb/harness/tests -p 'test*.py'
 

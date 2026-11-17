@@ -25,7 +25,7 @@ $$\text{Whole-Subgraph Roofline Utilization (\%)} = \frac{T_{\text{min}}(\text{s
 
 Where:
 - $F_{\text{subgraph}} = \sum_{op \in \text{subgraph}} F_{op}$: Total algorithmic math operations across all steps in the subgraph.
-- $B_{\text{min\_subgraph}} = B_{\text{inputs}} + B_{\text{weights}} + B_{\text{state\_read/update}} + B_{\text{outputs}}$: Minimum bytes that must cross main memory — counting **only** the subgraph's initial inputs, model weights, state/KV-cache updates, and final outputs.
+- $B_{\text{min\_subgraph}} = B_{\text{inputs}} + B_{\text{weights}} + B_{\text{state\_read/update}} + B_{\text{outputs}}$: Minimum bytes that must cross main memory, counting **only** the subgraph's initial inputs, model weights, state/KV-cache updates, and final outputs.
 - $C_{\text{prac}}$ and $BW_{\text{prac}}$: Practical hardware compute and bandwidth ceilings established by Level 1 [kernel probes](../kernel/probes/README.md).
 
 ### Why Whole-Subgraph Roofline Matters
@@ -55,10 +55,29 @@ Optimizations at the Layer tier are classified into two categories:
 
 ---
 
+## Quick Start
+
+Commands below run from `layer/` (or from the repository root via
+`make MACHINE=<machine> layer-bench` and `make layer-test`). `MACHINE` is
+required for `bench` and selects both the `results/<machine>/` output directory
+and, by default, the matching `machine_threading` profile in
+[catalog/hyperparams.json](catalog/hyperparams.json):
+
+```bash
+cd layer
+make test                                       # validate catalog + unit tests
+make image                                      # build layer_bench Docker image
+make MACHINE=sapphire-rapids bench              # run XNNPACK + YNNPACK + parity
+make MACHINE=my-host MACHINE_PROFILE= bench     # custom host without a profile
+```
+
+---
+
 ## Directory Layout
 
 | Directory | Purpose |
 | :--- | :--- |
+| [catalog/](catalog/README.md) | Declarative layer & model multiplicity catalog (`gemma_qwen_edge.json`) and reusable execution / quantization / cliff / threading registry (`hyperparams.json`). |
 | [subgraphs/](subgraphs/README.md) | LiteRT Tensor API and competitor subgraph implementations (attention, normalization, MLP, MoE, and full blocks). |
-| [suites/](suites/README.md) | Layer benchmark suite definitions (shapes, sequence/context depths, thread counts, and precision configurations). |
-| [scripts/](scripts/README.md) | Layer benchmark runners, whole-subgraph roofline calculators, and numerical error propagation evaluators. |
+| [suites/](suites/README.md) | Layer benchmark suite definitions binding `catalog/` layers or models to `hyperparams.json` profiles. |
+| [scripts/](scripts/layer_catalog.py) | Layer catalog validator/scout/resolver (`layer_catalog.py`), subgraph runner (`run_layer_bench.py`), Roofline calculators, and `LMLB` parity evaluators. |

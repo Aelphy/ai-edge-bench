@@ -1,0 +1,301 @@
+{
+  "schema": "aeb.layer.hyperparams/1",
+  "description": "Reusable execution operating points, quantization schemes + numerical fidelity gates, (+/-Delta) register-tile cliff sweeps, and per-host CPU threading profiles for Level 2 (layer/) benchmarks.",
+  "regimes": {
+    "p1_d1": {
+      "mode": "decode",
+      "batch_sizes": [1],
+      "seq_lengths": [1],
+      "decode_context_lengths": [1],
+      "description": "Minimum single-token decode boundary (T_q=1, S_kv=1)."
+    },
+    "p64_d64": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [64, 128],
+      "decode_context_lengths": [64, 128],
+      "description": "Interactive short conversational turn within local sliding windows."
+    },
+    "p128_d128": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [128, 256],
+      "decode_context_lengths": [128, 256],
+      "description": "Static prefill_128 bucket boundary and short KV decode."
+    },
+    "p512": {
+      "mode": "prefill",
+      "batch_sizes": [1],
+      "seq_lengths": [512],
+      "decode_context_lengths": [],
+      "description": "Gemma 3/4 E2B local sliding-window boundary (W=512)."
+    },
+    "p1024_d128": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [1024],
+      "decode_context_lengths": [1024],
+      "description": "Headline prefill_1024 GEMM saturation and W=1024 local window boundary."
+    },
+    "p2048": {
+      "mode": "prefill",
+      "batch_sizes": [1],
+      "seq_lengths": [2048],
+      "decode_context_lengths": [],
+      "description": "Compute-bound multi-chunk prefill regime."
+    },
+    "p4096_d128": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [4096],
+      "decode_context_lengths": [4096],
+      "description": "Long-context regime where global attention scales past W=512/1024."
+    },
+    "decode_ctx512": {
+      "mode": "decode",
+      "batch_sizes": [1],
+      "seq_lengths": [512],
+      "decode_context_lengths": [512],
+      "description": "Memory-bandwidth-bound T_q=1 decode at S_kv=512."
+    },
+    "decode_ctx2048": {
+      "mode": "decode",
+      "batch_sizes": [1],
+      "seq_lengths": [2048],
+      "decode_context_lengths": [2048],
+      "description": "Memory-bandwidth-bound T_q=1 decode at S_kv=2048."
+    },
+    "decode_ctx8192": {
+      "mode": "decode",
+      "batch_sizes": [1],
+      "seq_lengths": [8192],
+      "decode_context_lengths": [8192],
+      "description": "Long-context T_q=1 decode where KV-cache DRAM traffic rivals weight streaming."
+    },
+    "decode_ctx32768": {
+      "mode": "decode",
+      "batch_sizes": [1],
+      "seq_lengths": [32768],
+      "decode_context_lengths": [32768],
+      "description": "Maximum 32K KV-cache capacity decode stress regime."
+    },
+    "core_cpu_sweep": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [128, 512, 1024, 2048],
+      "decode_context_lengths": [128, 512, 1024, 2048],
+      "description": "Default machine-agnostic CPU prefill + decode sequence sweep."
+    },
+    "sapphire_rapids_core": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [128, 512, 1024, 2048],
+      "decode_context_lengths": [128, 512, 1024, 2048],
+      "description": "Standard prefill + decode sequence sweep for Sapphire Rapids calibration."
+    },
+    "edge_starter_sweep": {
+      "mode": "both",
+      "batch_sizes": [1],
+      "seq_lengths": [128, 512, 1024],
+      "decode_context_lengths": [128, 512, 1024],
+      "description": "Compact prefill + decode sweep across <= 4B Gemma 3/4 and Qwen 3/3.5 starter layers."
+    }
+  },
+  "quant_schemes": {
+    "fp32": {
+      "weight_dtype": "fp32",
+      "activation_dtype": "fp32",
+      "accumulator_dtype": "fp32",
+      "kv_dtype": "fp32",
+      "block_size": 0,
+      "bits_per_weight": 32.0,
+      "accuracy_preserving": true,
+      "quality_gate": {
+        "rtol": 1e-4,
+        "atol": 1e-5,
+        "min_cosine": 0.9999,
+        "max_l2_rel_err": 1e-4,
+        "max_kl_divergence": 1e-5
+      }
+    },
+    "bf16": {
+      "weight_dtype": "bf16",
+      "activation_dtype": "bf16",
+      "accumulator_dtype": "fp32",
+      "kv_dtype": "bf16",
+      "block_size": 0,
+      "bits_per_weight": 16.0,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 1e-2,
+        "atol": 1e-3,
+        "min_cosine": 0.9995,
+        "max_l2_rel_err": 1.5e-2,
+        "max_kl_divergence": 1e-3
+      }
+    },
+    "fp16": {
+      "weight_dtype": "fp16",
+      "activation_dtype": "fp16",
+      "accumulator_dtype": "fp32",
+      "kv_dtype": "fp16",
+      "block_size": 0,
+      "bits_per_weight": 16.0,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 5e-3,
+        "atol": 5e-4,
+        "min_cosine": 0.9998,
+        "max_l2_rel_err": 5e-3,
+        "max_kl_divergence": 5e-4
+      }
+    },
+    "qc8w_qd8": {
+      "weight_dtype": "int8_channel",
+      "activation_dtype": "qd8_dynamic",
+      "accumulator_dtype": "int32",
+      "kv_dtype": "fp32",
+      "block_size": 0,
+      "bits_per_weight": 8.0,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 5e-2,
+        "atol": 1e-2,
+        "min_cosine": 0.998,
+        "max_l2_rel_err": 6.5e-2,
+        "max_kl_divergence": 5e-3
+      }
+    },
+    "qb4w_b32": {
+      "weight_dtype": "int4_block",
+      "activation_dtype": "qd8_dynamic",
+      "accumulator_dtype": "int32",
+      "kv_dtype": "fp16",
+      "block_size": 32,
+      "bits_per_weight": 4.5,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 0.15,
+        "atol": 0.05,
+        "min_cosine": 0.99,
+        "max_l2_rel_err": 0.15,
+        "max_kl_divergence": 0.025
+      }
+    },
+    "qb4w_b128": {
+      "weight_dtype": "int4_block",
+      "activation_dtype": "qd8_dynamic",
+      "accumulator_dtype": "int32",
+      "kv_dtype": "fp16",
+      "block_size": 128,
+      "bits_per_weight": 4.125,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 0.2,
+        "atol": 0.06,
+        "min_cosine": 0.985,
+        "max_l2_rel_err": 0.18,
+        "max_kl_divergence": 0.035
+      }
+    },
+    "qc2w_b32": {
+      "weight_dtype": "int2_block",
+      "activation_dtype": "qd8_dynamic",
+      "accumulator_dtype": "int32",
+      "kv_dtype": "fp16",
+      "block_size": 32,
+      "bits_per_weight": 2.5,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 0.35,
+        "atol": 0.15,
+        "min_cosine": 0.95,
+        "max_l2_rel_err": 0.32,
+        "max_kl_divergence": 0.10
+      }
+    },
+    "fp32_kv_q8_0": {
+      "weight_dtype": "fp32",
+      "activation_dtype": "fp32",
+      "accumulator_dtype": "fp32",
+      "kv_dtype": "q8_0",
+      "block_size": 32,
+      "bits_per_weight": 32.0,
+      "accuracy_preserving": false,
+      "quality_gate": {
+        "rtol": 2e-2,
+        "atol": 5e-3,
+        "min_cosine": 0.999,
+        "max_l2_rel_err": 2.5e-2,
+        "max_kl_divergence": 2e-3
+      }
+    }
+  },
+  "cliff_sweeps": {
+    "none": {
+      "deltas": [0],
+      "target_dims": [],
+      "tile_multiples": [],
+      "description": "Exact canonical model shapes only (no perturbation)."
+    },
+    "tile_boundaries": {
+      "deltas": [-16, -8, 0, 8, 16],
+      "target_dims": ["hidden_dim", "embed_dim"],
+      "tile_multiples": [16, 32, 64, 128, 256],
+      "description": "Probes register-tile tail remainders around AMX/AVX-512/NEON/SME2 mr x nr x kr boundaries."
+    },
+    "cacheline_strides": {
+      "deltas": [-64, 0, 64],
+      "target_dims": ["hidden_dim"],
+      "tile_multiples": [64, 128, 256],
+      "description": "Probes 64B cache-line and L2 set-associativity conflict strides on FFN dimensions."
+    }
+  },
+  "machine_threading": {
+    "sapphire-rapids": {
+      "arch": "x86_64",
+      "isa": ["AVX-512", "AVX-512-VNNI", "AVX-512-BF16", "AMX-BF16", "AMX-INT8"],
+      "physical_cores_per_domain": 28,
+      "thread_counts": [1, 4, 8, 16, 28, 32, 56],
+      "ceilings_file": "../../kernel/reports/2026-11-17-gemma4-31b-sapphire-rapids/ceilings_sapphire_rapids.json",
+      "wipe_caches_mb": 64,
+      "pinning_hint": "numactl --physcpubind=0-27 --localalloc"
+    },
+    "epyc-7443p": {
+      "arch": "x86_64",
+      "isa": ["AVX2", "FMA"],
+      "physical_cores_per_domain": 24,
+      "thread_counts": [1, 4, 8, 12, 24],
+      "ceilings_file": "",
+      "wipe_caches_mb": 128,
+      "pinning_hint": "numactl --physcpubind=0-23 --localalloc"
+    },
+    "apple-m5-max": {
+      "arch": "aarch64",
+      "isa": ["NEON", "DotProd", "I8MM", "BF16", "SME2"],
+      "physical_cores_per_domain": 12,
+      "thread_counts": [1, 4, 8, 12],
+      "ceilings_file": "",
+      "wipe_caches_mb": 64,
+      "pinning_hint": "QoS USER_INTERACTIVE (P-cores)"
+    },
+    "dgx-spark": {
+      "arch": "aarch64",
+      "isa": ["NEON", "SVE2", "I8MM", "BF16"],
+      "physical_cores_per_domain": 20,
+      "thread_counts": [1, 4, 10, 20],
+      "ceilings_file": "",
+      "wipe_caches_mb": 64,
+      "pinning_hint": "taskset -c 0-19"
+    },
+    "strix-halo": {
+      "arch": "x86_64",
+      "isa": ["AVX-512", "AVX-512-VNNI", "AVX-512-BF16"],
+      "physical_cores_per_domain": 16,
+      "thread_counts": [1, 4, 8, 16],
+      "ceilings_file": "",
+      "wipe_caches_mb": 64,
+      "pinning_hint": "taskset -c 0-15"
+    }
+  }
+}

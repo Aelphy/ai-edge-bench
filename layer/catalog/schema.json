@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/google-ai-edge/ai-edge-bench/layer/catalog/schema.json",
+  "title": "AI Edge Bench Level 2 Layer Catalog and Hyperparameter Registry Schemas",
+  "description": "Declarative schemas for storing immutable architectural layer definitions (aeb.layer.catalog/1) separately from execution regimes, quantization schemes, cliff sweeps, and machine threading profiles (aeb.layer.hyperparams/1).",
+  "$defs": {
+    "model_occurrence": {
+      "type": "object",
+      "required": ["model", "layers"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "archetype": { "type": "string" },
+        "layers": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "catalog_layer": {
+      "type": "object",
+      "required": ["id", "layer_type", "params"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "layer_type": {
+          "type": "string",
+          "enum": [
+            "TransformerBlock",
+            "SelfAttention",
+            "GatedDeltaNet",
+            "GatedMlp",
+            "PerLayerEmbedding",
+            "RmsNorm",
+            "RoPE",
+            "FullyConnected"
+          ]
+        },
+        "preset_name": { "type": "string" },
+        "params": { "type": "object" },
+        "inputs": { "type": "object" },
+        "states": { "type": "object" },
+        "weights": { "type": "object" },
+        "outputs": { "type": "object" },
+        "models": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/model_occurrence" }
+        }
+      }
+    },
+    "layer_catalog": {
+      "type": "object",
+      "required": [
+        "schema",
+        "catalog_id",
+        "models",
+        "composite_blocks",
+        "attention_layers",
+        "mlp_layers"
+      ],
+      "properties": {
+        "schema": { "const": "aeb.layer.catalog/1" },
+        "catalog_id": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "models": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["family", "total_layers", "embed_dim", "block_composition"],
+            "properties": {
+              "family": { "type": "string" },
+              "hf_repo": { "type": "string" },
+              "total_layers": { "type": "integer", "minimum": 1 },
+              "embed_dim": { "type": "integer", "minimum": 1 },
+              "vocab_size": { "type": "integer", "minimum": 1 },
+              "tie_word_embeddings": { "type": "boolean" },
+              "eps": { "type": "number", "exclusiveMinimum": 0 },
+              "block_composition": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": ["layer_id", "count"],
+                  "properties": {
+                    "layer_id": { "type": "string", "minLength": 1 },
+                    "count": { "type": "integer", "minimum": 1 }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "notes": { "type": "string" }
+            }
+          }
+        },
+        "composite_blocks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "attention_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "mlp_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "ple_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "norm_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "rope_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        },
+        "linear_fc_layers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/catalog_layer" }
+        }
+      }
+    },
+    "quality_gate": {
+      "type": "object",
+      "required": ["rtol", "atol"],
+      "properties": {
+        "rtol": { "type": "number", "minimum": 0 },
+        "atol": { "type": "number", "minimum": 0 },
+        "min_cosine": { "type": "number", "minimum": 0, "maximum": 1 },
+        "max_l2_rel_err": { "type": "number", "minimum": 0 },
+        "max_kl_divergence": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "hyperparams_registry": {
+      "type": "object",
+      "required": ["schema", "regimes", "quant_schemes", "cliff_sweeps", "machine_threading"],
+      "properties": {
+        "schema": { "const": "aeb.layer.hyperparams/1" },
+        "description": { "type": "string" },
+        "regimes": { "type": "object" },
+        "quant_schemes": { "type": "object" },
+        "cliff_sweeps": { "type": "object" },
+        "machine_threading": { "type": "object" }
+      }
+    }
+  }
+}

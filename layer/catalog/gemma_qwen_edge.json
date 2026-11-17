@@ -1,0 +1,8999 @@
+{
+  "schema": "aeb.layer.catalog/1",
+  "catalog_id": "gemma-qwen-edge-v1",
+  "description": "Canonical Level 2 layer & subgraph catalog across Gemma 3 (270M, 1B, 4B), Gemma 4 (E2B, E4B, 31B), Qwen 3 (0.6B, 1.7B, 4B), and Qwen 3.5 (0.8B), with exact per-model layer multiplicities for DeltaT_runtime attribution.",
+  "models": {
+    "Gemma3-270M": {
+      "family": "gemma3",
+      "hf_repo": "google/gemma-3-270m-it",
+      "total_layers": 18,
+      "embed_dim": 640,
+      "vocab_size": 262144,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma3-270M.LocalSliding",
+          "count": 15
+        },
+        {
+          "layer_id": "block.Gemma3-270M.GlobalFull",
+          "count": 3
+        }
+      ],
+      "notes": "5:1 local SWA (W=512) to global full attention."
+    },
+    "Gemma3-1B": {
+      "family": "gemma3",
+      "hf_repo": "google/gemma-3-1b-it",
+      "total_layers": 26,
+      "embed_dim": 1152,
+      "vocab_size": 262144,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma3-1B.LocalSliding",
+          "count": 22
+        },
+        {
+          "layer_id": "block.Gemma3-1B.GlobalFull",
+          "count": 4
+        }
+      ],
+      "notes": "5:1 local SWA (W=512) to global full attention; embed_dim=1152 != H_q*D=1024."
+    },
+    "Gemma3-4B": {
+      "family": "gemma3",
+      "hf_repo": "google/gemma-3-4b-it",
+      "total_layers": 34,
+      "embed_dim": 2560,
+      "vocab_size": 262208,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma3-4B.LocalSliding",
+          "count": 29
+        },
+        {
+          "layer_id": "block.Gemma3-4B.GlobalFull",
+          "count": 5
+        }
+      ],
+      "notes": "5:1 local SWA (W=1024) to global full attention."
+    },
+    "Gemma4-E2B": {
+      "family": "gemma4",
+      "hf_repo": "google/gemma-4-E2B-it",
+      "total_layers": 35,
+      "embed_dim": 1536,
+      "vocab_size": 262144,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma4-E2B.LocalProducer",
+          "count": 12
+        },
+        {
+          "layer_id": "block.Gemma4-E2B.GlobalProducer",
+          "count": 3
+        },
+        {
+          "layer_id": "block.Gemma4-E2B.LocalSharedKV",
+          "count": 16
+        },
+        {
+          "layer_id": "block.Gemma4-E2B.GlobalSharedKV",
+          "count": 4
+        }
+      ],
+      "notes": "35 layers across 4 archetypes (Local/Global x KV-Producer/SharedKV) + PLE (256)."
+    },
+    "Gemma4-E4B": {
+      "family": "gemma4",
+      "hf_repo": "google/gemma-4-E4B-it",
+      "total_layers": 42,
+      "embed_dim": 2560,
+      "vocab_size": 262144,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma4-E4B.LocalProducer",
+          "count": 20
+        },
+        {
+          "layer_id": "block.Gemma4-E4B.GlobalProducer",
+          "count": 4
+        },
+        {
+          "layer_id": "block.Gemma4-E4B.LocalSharedKV",
+          "count": 15
+        },
+        {
+          "layer_id": "block.Gemma4-E4B.GlobalSharedKV",
+          "count": 3
+        }
+      ],
+      "notes": "42 layers across 4 archetypes (Local/Global x KV-Producer/SharedKV) + PLE (256)."
+    },
+    "Gemma4-31B": {
+      "family": "gemma4",
+      "hf_repo": "google/gemma-4-31B-it",
+      "total_layers": 60,
+      "embed_dim": 5376,
+      "vocab_size": 262144,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Gemma4-31B.LocalSliding",
+          "count": 50
+        },
+        {
+          "layer_id": "block.Gemma4-31B.GlobalFull",
+          "count": 10
+        }
+      ],
+      "notes": "60 layers: 50x Local SWA (D=256, H_kv=16, W=1024) + 10x Global Full (D=512, H_kv=4, K=V, R=128)."
+    },
+    "Qwen3-0.6B": {
+      "family": "qwen3",
+      "hf_repo": "Qwen/Qwen3-0.6B",
+      "total_layers": 28,
+      "embed_dim": 1024,
+      "vocab_size": 151936,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Qwen3-0.6B.FullAttention",
+          "count": 28
+        }
+      ],
+      "notes": "28 homogeneous GQA (16:8, D=128) + SwiGLU blocks; embed_dim=1024 != H_q*D=2048."
+    },
+    "Qwen3-1.7B": {
+      "family": "qwen3",
+      "hf_repo": "Qwen/Qwen3-1.7B",
+      "total_layers": 28,
+      "embed_dim": 2048,
+      "vocab_size": 151936,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Qwen3-1.7B.FullAttention",
+          "count": 28
+        }
+      ],
+      "notes": "28 homogeneous GQA (16:8, D=128) + SwiGLU blocks."
+    },
+    "Qwen3-4B": {
+      "family": "qwen3",
+      "hf_repo": "Qwen/Qwen3-4B",
+      "total_layers": 36,
+      "embed_dim": 2560,
+      "vocab_size": 151936,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Qwen3-4B.FullAttention",
+          "count": 36
+        }
+      ],
+      "notes": "36 homogeneous GQA (32:8, D=128) + SwiGLU blocks; embed_dim=2560 != H_q*D=4096."
+    },
+    "Qwen3.5-0.8B": {
+      "family": "qwen3_5",
+      "hf_repo": "Qwen/Qwen3.5-0.8B",
+      "total_layers": 24,
+      "embed_dim": 1024,
+      "vocab_size": 248320,
+      "tie_word_embeddings": true,
+      "eps": 1e-06,
+      "block_composition": [
+        {
+          "layer_id": "block.Qwen3.5-0.8B.GatedDeltaNet",
+          "count": 18
+        },
+        {
+          "layer_id": "block.Qwen3.5-0.8B.GatedFullAttention",
+          "count": 6
+        }
+      ],
+      "notes": "24 hybrid blocks: 18x GatedDeltaNet linear-attention + 6x GatedFullAttention (3:1)."
+    }
+  },
+  "composite_blocks": [
+    {
+      "id": "block.Gemma3-270M.LocalSliding",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-270M",
+          "archetype": "Gemma3-270M.LocalSliding",
+          "layers": 15
+        }
+      ],
+      "params": {
+        "embed_dim": 640,
+        "hidden_dim": 2048,
+        "mlp_activation": "GeGLU",
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          640
+        ],
+        "q_proj": [
+          1024,
+          640
+        ],
+        "o_proj": [
+          640,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          640
+        ],
+        "gate_proj": [
+          2048,
+          640
+        ],
+        "up_proj": [
+          2048,
+          640
+        ],
+        "down_proj": [
+          640,
+          2048
+        ],
+        "k_proj": [
+          256,
+          640
+        ],
+        "v_proj": [
+          256,
+          640
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          640
+        ],
+        "post_feedforward_layernorm": [
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "preset_name": "Gemma3-270M"
+    },
+    {
+      "id": "block.Gemma3-270M.GlobalFull",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-270M",
+          "archetype": "Gemma3-270M.GlobalFull",
+          "layers": 3
+        }
+      ],
+      "params": {
+        "embed_dim": 640,
+        "hidden_dim": 2048,
+        "mlp_activation": "GeGLU",
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          640
+        ],
+        "q_proj": [
+          1024,
+          640
+        ],
+        "o_proj": [
+          640,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          640
+        ],
+        "gate_proj": [
+          2048,
+          640
+        ],
+        "up_proj": [
+          2048,
+          640
+        ],
+        "down_proj": [
+          640,
+          2048
+        ],
+        "k_proj": [
+          256,
+          640
+        ],
+        "v_proj": [
+          256,
+          640
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          640
+        ],
+        "post_feedforward_layernorm": [
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "preset_name": "Gemma3-270M-Global"
+    },
+    {
+      "id": "block.Gemma3-1B.LocalSliding",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-1B",
+          "archetype": "Gemma3-1B.LocalSliding",
+          "layers": 22
+        }
+      ],
+      "params": {
+        "embed_dim": 1152,
+        "hidden_dim": 6912,
+        "mlp_activation": "GeGLU",
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1152
+        ],
+        "q_proj": [
+          1024,
+          1152
+        ],
+        "o_proj": [
+          1152,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1152
+        ],
+        "gate_proj": [
+          6912,
+          1152
+        ],
+        "up_proj": [
+          6912,
+          1152
+        ],
+        "down_proj": [
+          1152,
+          6912
+        ],
+        "k_proj": [
+          256,
+          1152
+        ],
+        "v_proj": [
+          256,
+          1152
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          1152
+        ],
+        "post_feedforward_layernorm": [
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "preset_name": "Gemma3-1B"
+    },
+    {
+      "id": "block.Gemma3-1B.GlobalFull",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-1B",
+          "archetype": "Gemma3-1B.GlobalFull",
+          "layers": 4
+        }
+      ],
+      "params": {
+        "embed_dim": 1152,
+        "hidden_dim": 6912,
+        "mlp_activation": "GeGLU",
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1152
+        ],
+        "q_proj": [
+          1024,
+          1152
+        ],
+        "o_proj": [
+          1152,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1152
+        ],
+        "gate_proj": [
+          6912,
+          1152
+        ],
+        "up_proj": [
+          6912,
+          1152
+        ],
+        "down_proj": [
+          1152,
+          6912
+        ],
+        "k_proj": [
+          256,
+          1152
+        ],
+        "v_proj": [
+          256,
+          1152
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          1152
+        ],
+        "post_feedforward_layernorm": [
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "preset_name": "Gemma3-1B-Global"
+    },
+    {
+      "id": "block.Gemma3-4B.LocalSliding",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-4B",
+          "archetype": "Gemma3-4B.LocalSliding",
+          "layers": 29
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 1024,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma3-4B"
+    },
+    {
+      "id": "block.Gemma3-4B.GlobalFull",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma3-4B",
+          "archetype": "Gemma3-4B.GlobalFull",
+          "layers": 5
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma3-4B-Global"
+    },
+    {
+      "id": "block.Gemma4-E2B.LocalProducer",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalProducer",
+          "layers": 12
+        }
+      ],
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 6144,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1536
+        ],
+        "q_proj": [
+          2048,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1536
+        ],
+        "gate_proj": [
+          6144,
+          1536
+        ],
+        "up_proj": [
+          6144,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          6144
+        ],
+        "k_proj": [
+          256,
+          1536
+        ],
+        "v_proj": [
+          256,
+          1536
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          1536
+        ],
+        "post_feedforward_layernorm": [
+          1536
+        ],
+        "ple_input_gate": [
+          256,
+          1536
+        ],
+        "ple_projection": [
+          1536,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          1536
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "preset_name": "Gemma4-E2B"
+    },
+    {
+      "id": "block.Gemma4-E2B.GlobalProducer",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalProducer",
+          "layers": 3
+        }
+      ],
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 6144,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1536
+        ],
+        "q_proj": [
+          4096,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1536
+        ],
+        "gate_proj": [
+          6144,
+          1536
+        ],
+        "up_proj": [
+          6144,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          6144
+        ],
+        "k_proj": [
+          512,
+          1536
+        ],
+        "v_proj": [
+          512,
+          1536
+        ],
+        "k_norm": [
+          512
+        ],
+        "post_attention_layernorm": [
+          1536
+        ],
+        "post_feedforward_layernorm": [
+          1536
+        ],
+        "ple_input_gate": [
+          256,
+          1536
+        ],
+        "ple_projection": [
+          1536,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          1536
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "preset_name": "Gemma4-E2B-Global"
+    },
+    {
+      "id": "block.Gemma4-E2B.LocalSharedKV",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalSharedKV",
+          "layers": 16
+        }
+      ],
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 6144,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_only_shared"
+      },
+      "weights": {
+        "input_layernorm": [
+          1536
+        ],
+        "q_proj": [
+          2048,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1536
+        ],
+        "gate_proj": [
+          6144,
+          1536
+        ],
+        "up_proj": [
+          6144,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          6144
+        ],
+        "post_attention_layernorm": [
+          1536
+        ],
+        "post_feedforward_layernorm": [
+          1536
+        ],
+        "ple_input_gate": [
+          256,
+          1536
+        ],
+        "ple_projection": [
+          1536,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          1536
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "preset_name": "Gemma4-E2B-LocalSharedKV"
+    },
+    {
+      "id": "block.Gemma4-E2B.GlobalSharedKV",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalSharedKV",
+          "layers": 4
+        }
+      ],
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 6144,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_mode": "read_only_shared"
+      },
+      "weights": {
+        "input_layernorm": [
+          1536
+        ],
+        "q_proj": [
+          4096,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1536
+        ],
+        "gate_proj": [
+          6144,
+          1536
+        ],
+        "up_proj": [
+          6144,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          6144
+        ],
+        "post_attention_layernorm": [
+          1536
+        ],
+        "post_feedforward_layernorm": [
+          1536
+        ],
+        "ple_input_gate": [
+          256,
+          1536
+        ],
+        "ple_projection": [
+          1536,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          1536
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "preset_name": "Gemma4-E2B-GlobalSharedKV"
+    },
+    {
+      "id": "block.Gemma4-E4B.LocalProducer",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalProducer",
+          "layers": 20
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "k_proj": [
+          512,
+          2560
+        ],
+        "v_proj": [
+          512,
+          2560
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ],
+        "ple_input_gate": [
+          256,
+          2560
+        ],
+        "ple_projection": [
+          2560,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          2560
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma4-E4B"
+    },
+    {
+      "id": "block.Gemma4-E4B.GlobalProducer",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalProducer",
+          "layers": 4
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          512
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ],
+        "ple_input_gate": [
+          256,
+          2560
+        ],
+        "ple_projection": [
+          2560,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          2560
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma4-E4B-Global"
+    },
+    {
+      "id": "block.Gemma4-E4B.LocalSharedKV",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalSharedKV",
+          "layers": 15
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_only_shared"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ],
+        "ple_input_gate": [
+          256,
+          2560
+        ],
+        "ple_projection": [
+          2560,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          2560
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma4-E4B-LocalSharedKV"
+    },
+    {
+      "id": "block.Gemma4-E4B.GlobalSharedKV",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalSharedKV",
+          "layers": 3
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 5,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_mode": "read_only_shared"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ],
+        "post_attention_layernorm": [
+          2560
+        ],
+        "post_feedforward_layernorm": [
+          2560
+        ],
+        "ple_input_gate": [
+          256,
+          2560
+        ],
+        "ple_projection": [
+          2560,
+          256
+        ],
+        "post_per_layer_input_norm": [
+          2560
+        ],
+        "layer_scalar": [
+          1
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Gemma4-E4B-GlobalSharedKV"
+    },
+    {
+      "id": "block.Qwen3-0.6B.FullAttention",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Qwen3-0.6B",
+          "archetype": "Qwen3-0.6B.FullAttention",
+          "layers": 28
+        }
+      ],
+      "params": {
+        "embed_dim": 1024,
+        "hidden_dim": 3072,
+        "mlp_activation": "SwiGLU",
+        "num_heads": 16,
+        "num_kv_heads": 8,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 2,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1024
+        ],
+        "q_proj": [
+          2048,
+          1024
+        ],
+        "o_proj": [
+          1024,
+          2048
+        ],
+        "q_norm": [
+          128
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1024
+        ],
+        "gate_proj": [
+          3072,
+          1024
+        ],
+        "up_proj": [
+          3072,
+          1024
+        ],
+        "down_proj": [
+          1024,
+          3072
+        ],
+        "k_proj": [
+          1024,
+          1024
+        ],
+        "v_proj": [
+          1024,
+          1024
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "preset_name": "Qwen3-0.6B"
+    },
+    {
+      "id": "block.Qwen3-1.7B.FullAttention",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Qwen3-1.7B",
+          "archetype": "Qwen3-1.7B.FullAttention",
+          "layers": 28
+        }
+      ],
+      "params": {
+        "embed_dim": 2048,
+        "hidden_dim": 6144,
+        "mlp_activation": "SwiGLU",
+        "num_heads": 16,
+        "num_kv_heads": 8,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 2,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2048
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2048
+        ],
+        "q_proj": [
+          2048,
+          2048
+        ],
+        "o_proj": [
+          2048,
+          2048
+        ],
+        "q_norm": [
+          128
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2048
+        ],
+        "gate_proj": [
+          6144,
+          2048
+        ],
+        "up_proj": [
+          6144,
+          2048
+        ],
+        "down_proj": [
+          2048,
+          6144
+        ],
+        "k_proj": [
+          1024,
+          2048
+        ],
+        "v_proj": [
+          1024,
+          2048
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "preset_name": "Qwen3-1.7B"
+    },
+    {
+      "id": "block.Qwen3-4B.FullAttention",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Qwen3-4B",
+          "archetype": "Qwen3-4B.FullAttention",
+          "layers": 36
+        }
+      ],
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 9728,
+        "mlp_activation": "SwiGLU",
+        "num_heads": 32,
+        "num_kv_heads": 8,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 2,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          2560
+        ],
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          128
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          2560
+        ],
+        "gate_proj": [
+          9728,
+          2560
+        ],
+        "up_proj": [
+          9728,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          9728
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "preset_name": "Qwen3-4B"
+    },
+    {
+      "id": "block.Qwen3.5-0.8B.GatedDeltaNet",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Qwen3.5-0.8B",
+          "archetype": "Qwen3.5-0.8B.GatedDeltaNet",
+          "layers": 18
+        }
+      ],
+      "params": {
+        "embed_dim": 1024,
+        "hidden_dim": 3584,
+        "mlp_activation": "SwiGLU",
+        "mixer": "GatedDeltaNet",
+        "num_k_heads": 16,
+        "num_v_heads": 16,
+        "k_head_dim": 128,
+        "v_head_dim": 128,
+        "conv_kernel_size": 4,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "states": {
+        "conv_state": [
+          "B",
+          3,
+          6144
+        ],
+        "recurrent_state": [
+          "B",
+          16,
+          128,
+          128
+        ]
+      },
+      "weights": {
+        "input_layernorm": [
+          1024
+        ],
+        "in_proj_qkv": [
+          6144,
+          1024
+        ],
+        "in_proj_z": [
+          2048,
+          1024
+        ],
+        "in_proj_a": [
+          16,
+          1024
+        ],
+        "in_proj_b": [
+          16,
+          1024
+        ],
+        "conv1d_dw": [
+          1,
+          1,
+          4,
+          6144
+        ],
+        "A_log": [
+          16
+        ],
+        "dt_bias": [
+          16
+        ],
+        "gdn_norm": [
+          128
+        ],
+        "out_proj": [
+          1024,
+          2048
+        ],
+        "post_attention_layernorm": [
+          1024
+        ],
+        "gate_proj": [
+          3584,
+          1024
+        ],
+        "up_proj": [
+          3584,
+          1024
+        ],
+        "down_proj": [
+          1024,
+          3584
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "preset_name": "Qwen3.5-0.8B-GDN"
+    },
+    {
+      "id": "block.Qwen3.5-0.8B.GatedFullAttention",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Qwen3.5-0.8B",
+          "archetype": "Qwen3.5-0.8B.GatedFullAttention",
+          "layers": 6
+        }
+      ],
+      "params": {
+        "embed_dim": 1024,
+        "hidden_dim": 3584,
+        "mlp_activation": "SwiGLU",
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 256,
+        "rotary_dim": 64,
+        "sliding_window": null,
+        "gated_q_proj": true,
+        "shared_kv": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": false,
+        "num_block_norms": 2,
+        "ple_dim": 0,
+        "layer_scalar": false,
+        "eps": 1e-06,
+        "k_eq_v": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          64
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          64
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1024
+        ],
+        "q_proj": [
+          4096,
+          1024
+        ],
+        "o_proj": [
+          1024,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "pre_ffn_or_post_attn_norm": [
+          1024
+        ],
+        "gate_proj": [
+          3584,
+          1024
+        ],
+        "up_proj": [
+          3584,
+          1024
+        ],
+        "down_proj": [
+          1024,
+          3584
+        ],
+        "k_proj": [
+          512,
+          1024
+        ],
+        "v_proj": [
+          512,
+          1024
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "preset_name": "Qwen3.5-0.8B-Attn"
+    },
+    {
+      "id": "block.Gemma4-E2B-WideMLP.Ablation",
+      "preset_name": "Gemma4-E2B-WideMLP",
+      "layer_type": "TransformerBlock",
+      "models": [],
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 12288,
+        "mlp_activation": "GeGLU",
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "k_eq_v": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 4,
+        "ple_dim": 256,
+        "layer_scalar": true,
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          1536
+        ],
+        "q_proj": [
+          2048,
+          1536
+        ],
+        "k_proj": [
+          256,
+          1536
+        ],
+        "v_proj": [
+          256,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          1536
+        ],
+        "pre_feedforward_layernorm": [
+          1536
+        ],
+        "gate_proj": [
+          12288,
+          1536
+        ],
+        "up_proj": [
+          12288,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          12288
+        ],
+        "post_feedforward_layernorm": [
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      }
+    },
+    {
+      "id": "block.Gemma4-31B.LocalSliding",
+      "preset_name": "Gemma4-31B-Local",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-31B",
+          "archetype": "Gemma4-31B.LocalSliding",
+          "layers": 50
+        }
+      ],
+      "params": {
+        "embed_dim": 5376,
+        "hidden_dim": 21504,
+        "mlp_activation": "GeGLU",
+        "num_heads": 32,
+        "num_kv_heads": 16,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 1024,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "k_eq_v": false,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": true,
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          16,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          16,
+          "Skv",
+          256
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          5376
+        ],
+        "q_proj": [
+          8192,
+          5376
+        ],
+        "k_proj": [
+          4096,
+          5376
+        ],
+        "v_proj": [
+          4096,
+          5376
+        ],
+        "o_proj": [
+          5376,
+          8192
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_norm": [
+          256
+        ],
+        "post_attention_layernorm": [
+          5376
+        ],
+        "pre_feedforward_layernorm": [
+          5376
+        ],
+        "gate_proj": [
+          21504,
+          5376
+        ],
+        "up_proj": [
+          21504,
+          5376
+        ],
+        "down_proj": [
+          5376,
+          21504
+        ],
+        "post_feedforward_layernorm": [
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      }
+    },
+    {
+      "id": "block.Gemma4-31B.GlobalFull",
+      "preset_name": "Gemma4-31B-Global",
+      "layer_type": "TransformerBlock",
+      "models": [
+        {
+          "model": "Gemma4-31B",
+          "archetype": "Gemma4-31B.GlobalFull",
+          "layers": 10
+        }
+      ],
+      "params": {
+        "embed_dim": 5376,
+        "hidden_dim": 21504,
+        "mlp_activation": "GeGLU",
+        "num_heads": 32,
+        "num_kv_heads": 4,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "k_eq_v": true,
+        "qk_norm": true,
+        "v_norm_l2_noscale": true,
+        "num_block_norms": 4,
+        "ple_dim": 0,
+        "layer_scalar": true,
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "attention_mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          512
+        ],
+        "kv_mode": "read_write_append"
+      },
+      "weights": {
+        "input_layernorm": [
+          5376
+        ],
+        "q_proj": [
+          16384,
+          5376
+        ],
+        "k_proj": [
+          2048,
+          5376
+        ],
+        "o_proj": [
+          5376,
+          16384
+        ],
+        "q_norm": [
+          512
+        ],
+        "k_norm": [
+          512
+        ],
+        "post_attention_layernorm": [
+          5376
+        ],
+        "pre_feedforward_layernorm": [
+          5376
+        ],
+        "gate_proj": [
+          21504,
+          5376
+        ],
+        "up_proj": [
+          21504,
+          5376
+        ],
+        "down_proj": [
+          5376,
+          21504
+        ],
+        "post_feedforward_layernorm": [
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      }
+    }
+  ],
+  "attention_layers": [
+    {
+      "id": "attn.M640_Hq4_Hkv1_D256_R256_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 640,
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          1024,
+          640
+        ],
+        "o_proj": [
+          640,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          256,
+          640
+        ],
+        "v_proj": [
+          256,
+          640
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-270M",
+          "archetype": "Gemma3-270M.LocalSliding",
+          "layers": 15
+        }
+      ]
+    },
+    {
+      "id": "attn.M640_Hq4_Hkv1_D256_R256_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 640,
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          1024,
+          640
+        ],
+        "o_proj": [
+          640,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          256,
+          640
+        ],
+        "v_proj": [
+          256,
+          640
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-270M",
+          "archetype": "Gemma3-270M.GlobalFull",
+          "layers": 3
+        }
+      ]
+    },
+    {
+      "id": "attn.M1152_Hq4_Hkv1_D256_R256_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1152,
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          1024,
+          1152
+        ],
+        "o_proj": [
+          1152,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          256,
+          1152
+        ],
+        "v_proj": [
+          256,
+          1152
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-1B",
+          "archetype": "Gemma3-1B.LocalSliding",
+          "layers": 22
+        }
+      ]
+    },
+    {
+      "id": "attn.M1152_Hq4_Hkv1_D256_R256_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1152,
+        "num_heads": 4,
+        "num_kv_heads": 1,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          1024,
+          1152
+        ],
+        "o_proj": [
+          1152,
+          1024
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          256,
+          1152
+        ],
+        "v_proj": [
+          256,
+          1152
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-1B",
+          "archetype": "Gemma3-1B.GlobalFull",
+          "layers": 4
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv4_D256_R256_W1024",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 4,
+        "gqa_ratio": 2,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 1024,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            4,
+            "2*Sq",
+            256
+          ],
+          [
+            "B",
+            4,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            4,
+            "2*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            4,
+            "2*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            4,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            4,
+            "2*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-4B",
+          "archetype": "Gemma3-4B.LocalSliding",
+          "layers": 29
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv4_D256_R256_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 4,
+        "gqa_ratio": 2,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            4,
+            "2*Sq",
+            256
+          ],
+          [
+            "B",
+            4,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            4,
+            "2*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            4,
+            "2*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            4,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            4,
+            "2*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-4B",
+          "archetype": "Gemma3-4B.GlobalFull",
+          "layers": 5
+        }
+      ]
+    },
+    {
+      "id": "attn.M1536_Hq8_Hkv1_D256_R256_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1536,
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "gqa_ratio": 8,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          256,
+          1536
+        ],
+        "v_proj": [
+          256,
+          1536
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalProducer",
+          "layers": 12
+        }
+      ]
+    },
+    {
+      "id": "attn.M1536_Hq8_Hkv1_D512_R128_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1536,
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "gqa_ratio": 8,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          512
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "k_proj": [
+          512,
+          1536
+        ],
+        "v_proj": [
+          512,
+          1536
+        ],
+        "k_norm": [
+          512
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            512
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            512
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalProducer",
+          "layers": 3
+        }
+      ]
+    },
+    {
+      "id": "attn.M1536_Hq8_Hkv1_D256_R256_sharedkv_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1536,
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "gqa_ratio": 8,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          2048
+        ],
+        "q_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            256
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalSharedKV",
+          "layers": 16
+        }
+      ]
+    },
+    {
+      "id": "attn.M1536_Hq8_Hkv1_D512_R128_sharedkv_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1536,
+        "num_heads": 8,
+        "num_kv_heads": 1,
+        "gqa_ratio": 8,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          1,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          1,
+          "Skv",
+          512
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          1536
+        ],
+        "o_proj": [
+          1536,
+          4096
+        ],
+        "q_norm": [
+          512
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            512
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            1,
+            "8*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            1,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            1,
+            "8*Sq",
+            512
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalSharedKV",
+          "layers": 4
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv2_D256_R256_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          512,
+          2560
+        ],
+        "v_proj": [
+          512,
+          2560
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalProducer",
+          "layers": 20
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv2_D512_R128_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "gqa_ratio": 4,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          512
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          512
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          512
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            512
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            512
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalProducer",
+          "layers": 4
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv2_D256_R256_sharedkv_W512",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 512,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          2048
+        ],
+        "q_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalSharedKV",
+          "layers": 15
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq8_Hkv2_D512_R128_sharedkv_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "gqa_ratio": 4,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": true,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          512
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          512
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            512
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            512
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            512
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalSharedKV",
+          "layers": 3
+        }
+      ]
+    },
+    {
+      "id": "attn.M1024_Hq16_Hkv8_D128_R128_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1024,
+        "num_heads": 16,
+        "num_kv_heads": 8,
+        "gqa_ratio": 2,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          1024
+        ],
+        "o_proj": [
+          1024,
+          2048
+        ],
+        "q_norm": [
+          128
+        ],
+        "k_proj": [
+          1024,
+          1024
+        ],
+        "v_proj": [
+          1024,
+          1024
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            8,
+            "2*Sq",
+            128
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "2*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            8,
+            "2*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "2*Sq",
+            128
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-0.6B",
+          "archetype": "Qwen3-0.6B.FullAttention",
+          "layers": 28
+        }
+      ]
+    },
+    {
+      "id": "attn.M2048_Hq16_Hkv8_D128_R128_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2048,
+        "num_heads": 16,
+        "num_kv_heads": 8,
+        "gqa_ratio": 2,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2048
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          2048,
+          2048
+        ],
+        "o_proj": [
+          2048,
+          2048
+        ],
+        "q_norm": [
+          128
+        ],
+        "k_proj": [
+          1024,
+          2048
+        ],
+        "v_proj": [
+          1024,
+          2048
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            8,
+            "2*Sq",
+            128
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "2*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            8,
+            "2*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "2*Sq",
+            128
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-1.7B",
+          "archetype": "Qwen3-1.7B.FullAttention",
+          "layers": 28
+        }
+      ]
+    },
+    {
+      "id": "attn.M2560_Hq32_Hkv8_D128_R128_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 2560,
+        "num_heads": 32,
+        "num_kv_heads": 8,
+        "gqa_ratio": 4,
+        "head_dim": 128,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          8,
+          "Skv",
+          128
+        ],
+        "kv_cache_v": [
+          "B",
+          8,
+          "Skv",
+          128
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          2560
+        ],
+        "o_proj": [
+          2560,
+          4096
+        ],
+        "q_norm": [
+          128
+        ],
+        "k_proj": [
+          1024,
+          2560
+        ],
+        "v_proj": [
+          1024,
+          2560
+        ],
+        "k_norm": [
+          128
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            8,
+            "4*Sq",
+            128
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            8,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            8,
+            "Skv",
+            128
+          ],
+          [
+            "B",
+            8,
+            "4*Sq",
+            128
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-4B",
+          "archetype": "Qwen3-4B.FullAttention",
+          "layers": 36
+        }
+      ]
+    },
+    {
+      "id": "attn.M1024_Hq8_Hkv2_D256_R64_gated_full",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 1024,
+        "num_heads": 8,
+        "num_kv_heads": 2,
+        "gqa_ratio": 4,
+        "head_dim": 256,
+        "rotary_dim": 64,
+        "sliding_window": null,
+        "gated_q_proj": true,
+        "shared_kv": false,
+        "v_norm": false
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          64
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          64
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          2,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          2,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          4096,
+          1024
+        ],
+        "o_proj": [
+          1024,
+          2048
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_proj": [
+          512,
+          1024
+        ],
+        "v_proj": [
+          512,
+          1024
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "internal_sdpa_bmm_shapes": {
+        "qk_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ]
+        ],
+        "pv_folded": [
+          [
+            "B",
+            2,
+            "4*Sq",
+            "Skv"
+          ],
+          [
+            "B",
+            2,
+            "Skv",
+            256
+          ],
+          [
+            "B",
+            2,
+            "4*Sq",
+            256
+          ]
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3.5-0.8B",
+          "archetype": "Qwen3.5-0.8B.GatedFullAttention",
+          "layers": 6
+        }
+      ]
+    },
+    {
+      "id": "attn.M5376_Hq32_Hkv16_D256_R256_W1024",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 5376,
+        "num_heads": 32,
+        "num_kv_heads": 16,
+        "gqa_ratio": 2,
+        "head_dim": 256,
+        "rotary_dim": 256,
+        "sliding_window": 1024,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "k_eq_v": false,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          16,
+          "Skv",
+          256
+        ],
+        "kv_cache_v": [
+          "B",
+          16,
+          "Skv",
+          256
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          8192,
+          5376
+        ],
+        "k_proj": [
+          4096,
+          5376
+        ],
+        "v_proj": [
+          4096,
+          5376
+        ],
+        "o_proj": [
+          5376,
+          8192
+        ],
+        "q_norm": [
+          256
+        ],
+        "k_norm": [
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-31B",
+          "archetype": "Gemma4-31B.LocalSliding",
+          "layers": 50
+        }
+      ]
+    },
+    {
+      "id": "attn.M5376_Hq32_Hkv4_D512_R128_Full_KeqV",
+      "layer_type": "SelfAttention",
+      "params": {
+        "embed_dim": 5376,
+        "num_heads": 32,
+        "num_kv_heads": 4,
+        "gqa_ratio": 8,
+        "head_dim": 512,
+        "rotary_dim": 128,
+        "sliding_window": null,
+        "gated_q_proj": false,
+        "shared_kv": false,
+        "k_eq_v": true,
+        "v_norm": true
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ],
+        "rope_cos": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "rope_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ],
+        "mask": [
+          1,
+          1,
+          "Sq",
+          "Skv"
+        ]
+      },
+      "states": {
+        "kv_cache_k": [
+          "B",
+          4,
+          "Skv",
+          512
+        ],
+        "kv_cache_v": [
+          "B",
+          4,
+          "Skv",
+          512
+        ]
+      },
+      "weights": {
+        "q_proj": [
+          16384,
+          5376
+        ],
+        "k_proj": [
+          2048,
+          5376
+        ],
+        "o_proj": [
+          5376,
+          16384
+        ],
+        "q_norm": [
+          512
+        ],
+        "k_norm": [
+          512
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-31B",
+          "archetype": "Gemma4-31B.GlobalFull",
+          "layers": 10
+        }
+      ]
+    }
+  ],
+  "mlp_layers": [
+    {
+      "id": "mlp.geglu_M640_F2048",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 640,
+        "hidden_dim": 2048,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          2048,
+          640
+        ],
+        "up_proj": [
+          2048,
+          640
+        ],
+        "down_proj": [
+          640,
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-270M",
+          "layers": 18
+        }
+      ]
+    },
+    {
+      "id": "mlp.geglu_M1152_F6912",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 1152,
+        "hidden_dim": 6912,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          6912,
+          1152
+        ],
+        "up_proj": [
+          6912,
+          1152
+        ],
+        "down_proj": [
+          1152,
+          6912
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-1B",
+          "layers": 26
+        }
+      ]
+    },
+    {
+      "id": "mlp.geglu_M2560_F10240",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 10240,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          10240,
+          2560
+        ],
+        "up_proj": [
+          10240,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          10240
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma3-4B",
+          "layers": 34
+        },
+        {
+          "model": "Gemma4-E4B",
+          "layers": 42
+        }
+      ]
+    },
+    {
+      "id": "mlp.geglu_M1536_F6144",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 6144,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          6144,
+          1536
+        ],
+        "up_proj": [
+          6144,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          6144
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "layers": 35
+        }
+      ]
+    },
+    {
+      "id": "mlp.swiglu_M1024_F3072",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 1024,
+        "hidden_dim": 3072,
+        "activation": "SwiGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          3072,
+          1024
+        ],
+        "up_proj": [
+          3072,
+          1024
+        ],
+        "down_proj": [
+          1024,
+          3072
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-0.6B",
+          "layers": 28
+        }
+      ]
+    },
+    {
+      "id": "mlp.swiglu_M2048_F6144",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 2048,
+        "hidden_dim": 6144,
+        "activation": "SwiGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          6144,
+          2048
+        ],
+        "up_proj": [
+          6144,
+          2048
+        ],
+        "down_proj": [
+          2048,
+          6144
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-1.7B",
+          "layers": 28
+        }
+      ]
+    },
+    {
+      "id": "mlp.swiglu_M2560_F9728",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 2560,
+        "hidden_dim": 9728,
+        "activation": "SwiGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          9728,
+          2560
+        ],
+        "up_proj": [
+          9728,
+          2560
+        ],
+        "down_proj": [
+          2560,
+          9728
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3-4B",
+          "layers": 36
+        }
+      ]
+    },
+    {
+      "id": "mlp.swiglu_M1024_F3584",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 1024,
+        "hidden_dim": 3584,
+        "activation": "SwiGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          3584,
+          1024
+        ],
+        "up_proj": [
+          3584,
+          1024
+        ],
+        "down_proj": [
+          1024,
+          3584
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "models": [
+        {
+          "model": "Qwen3.5-0.8B",
+          "layers": 24
+        }
+      ]
+    },
+    {
+      "id": "mlp.geglu_M1536_F12288",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 1536,
+        "hidden_dim": 12288,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          12288,
+          1536
+        ],
+        "up_proj": [
+          12288,
+          1536
+        ],
+        "down_proj": [
+          1536,
+          12288
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": []
+    },
+    {
+      "id": "mlp.geglu_M5376_F21504",
+      "layer_type": "GatedMlp",
+      "params": {
+        "embed_dim": 5376,
+        "hidden_dim": 21504,
+        "activation": "GeGLU"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "weights": {
+        "gate_proj": [
+          21504,
+          5376
+        ],
+        "up_proj": [
+          21504,
+          5376
+        ],
+        "down_proj": [
+          5376,
+          21504
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-31B",
+          "layers": 60
+        }
+      ]
+    }
+  ],
+  "ple_layers": [
+    {
+      "id": "ple.M1536_P256",
+      "layer_type": "PerLayerEmbedding",
+      "params": {
+        "embed_dim": 1536,
+        "ple_dim": 256,
+        "activation": "gelu_tanh"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "weights": {
+        "input_gate": [
+          256,
+          1536
+        ],
+        "projection": [
+          1536,
+          256
+        ],
+        "post_norm": [
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalProducer",
+          "layers": 12
+        },
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalProducer",
+          "layers": 3
+        },
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.LocalSharedKV",
+          "layers": 16
+        },
+        {
+          "model": "Gemma4-E2B",
+          "archetype": "Gemma4-E2B.GlobalSharedKV",
+          "layers": 4
+        }
+      ]
+    },
+    {
+      "id": "ple.M2560_P256",
+      "layer_type": "PerLayerEmbedding",
+      "params": {
+        "embed_dim": 2560,
+        "ple_dim": 256,
+        "activation": "gelu_tanh"
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ],
+        "per_layer_input": [
+          "B",
+          "Sq",
+          256
+        ]
+      },
+      "weights": {
+        "input_gate": [
+          256,
+          2560
+        ],
+        "projection": [
+          2560,
+          256
+        ],
+        "post_norm": [
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models": [
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalProducer",
+          "layers": 20
+        },
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalProducer",
+          "layers": 4
+        },
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.LocalSharedKV",
+          "layers": 15
+        },
+        {
+          "model": "Gemma4-E4B",
+          "archetype": "Gemma4-E4B.GlobalSharedKV",
+          "layers": 3
+        }
+      ]
+    }
+  ],
+  "norm_layers": [
+    {
+      "id": "norm.gdn_gated_rms_norm_D128",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 128,
+        "kind": "gdn_gated_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "models_or_archetypes": [
+        "Qwen3.5-0.8B.GatedDeltaNet"
+      ]
+    },
+    {
+      "id": "norm.gdn_qk_l2_noscale_D128",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 128,
+        "kind": "gdn_qk_l2_noscale",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "models_or_archetypes": [
+        "Qwen3.5-0.8B.GatedDeltaNet"
+      ]
+    },
+    {
+      "id": "norm.head_qk_rms_norm_D128",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 128,
+        "kind": "head_qk_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          128
+        ]
+      },
+      "models_or_archetypes": [
+        "Qwen3-0.6B.FullAttention",
+        "Qwen3-1.7B.FullAttention",
+        "Qwen3-4B.FullAttention"
+      ]
+    },
+    {
+      "id": "norm.head_qk_rms_norm_D256",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 256,
+        "kind": "head_qk_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          256
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma3-1B.GlobalFull",
+        "Gemma3-1B.LocalSliding",
+        "Gemma3-270M.GlobalFull",
+        "Gemma3-270M.LocalSliding",
+        "Gemma3-4B.GlobalFull",
+        "Gemma3-4B.LocalSliding",
+        "Gemma4-E2B.LocalProducer",
+        "Gemma4-E2B.LocalSharedKV",
+        "Gemma4-E4B.LocalProducer",
+        "Gemma4-E4B.LocalSharedKV",
+        "Qwen3.5-0.8B.GatedFullAttention"
+      ]
+    },
+    {
+      "id": "norm.head_v_l2_noscale_D256",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 256,
+        "kind": "head_v_l2_noscale",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          256
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma4-E2B.LocalProducer",
+        "Gemma4-E4B.LocalProducer"
+      ]
+    },
+    {
+      "id": "norm.head_qk_rms_norm_D512",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 512,
+        "kind": "head_qk_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          512
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          512
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma4-E2B.GlobalProducer",
+        "Gemma4-E2B.GlobalSharedKV",
+        "Gemma4-E4B.GlobalProducer",
+        "Gemma4-E4B.GlobalSharedKV"
+      ]
+    },
+    {
+      "id": "norm.head_v_l2_noscale_D512",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 512,
+        "kind": "head_v_l2_noscale",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          "H",
+          512
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          "H",
+          512
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma4-E2B.GlobalProducer",
+        "Gemma4-E4B.GlobalProducer"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D640",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 640,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          640
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma3-270M"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D1024",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 1024,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1024
+        ]
+      },
+      "models_or_archetypes": [
+        "Qwen3-0.6B",
+        "Qwen3.5-0.8B"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D1152",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 1152,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1152
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma3-1B"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D1536",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 1536,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          1536
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma4-E2B"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D2048",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 2048,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2048
+        ]
+      },
+      "models_or_archetypes": [
+        "Qwen3-1.7B"
+      ]
+    },
+    {
+      "id": "norm.residual_rms_norm_D2560",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 2560,
+        "kind": "residual_rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          2560
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma3-4B",
+        "Gemma4-E4B",
+        "Qwen3-4B"
+      ]
+    },
+    {
+      "id": "norm.rms_norm_D5376",
+      "layer_type": "RmsNorm",
+      "params": {
+        "dim": 5376,
+        "kind": "rms_norm",
+        "eps": 1e-06
+      },
+      "inputs": {
+        "x": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B",
+          "Sq",
+          5376
+        ]
+      },
+      "models_or_archetypes": [
+        "Gemma4-31B.LocalSliding",
+        "Gemma4-31B.GlobalFull",
+        "Gemma4-31B.final_norm"
+      ]
+    }
+  ],
+  "rope_layers": [
+    {
+      "id": "rope.Hq4_Hkv1_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 4,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          4,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          1,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          4,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Gemma3-1B.GlobalFull",
+        "Gemma3-1B.LocalSliding",
+        "Gemma3-270M.GlobalFull",
+        "Gemma3-270M.LocalSliding"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv0_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 0,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k": null,
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k_rot": null
+      },
+      "archetypes": [
+        "Gemma4-E2B.LocalSharedKV",
+        "Gemma4-E4B.LocalSharedKV"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv0_D512_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 0,
+        "head_dim": 512,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k": null,
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k_rot": null
+      },
+      "archetypes": [
+        "Gemma4-E2B.GlobalSharedKV",
+        "Gemma4-E4B.GlobalSharedKV"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv1_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          1,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Gemma4-E2B.LocalProducer"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv1_D512_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 1,
+        "head_dim": 512,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k": [
+          "B",
+          1,
+          "Sq",
+          512
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k_rot": [
+          "B",
+          1,
+          "Sq",
+          512
+        ]
+      },
+      "archetypes": [
+        "Gemma4-E2B.GlobalProducer"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv2_D256_R64",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 256,
+        "rotary_dim": 64
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          2,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          64
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          2,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Qwen3.5-0.8B.GatedFullAttention"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv2_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          2,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          2,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Gemma4-E4B.LocalProducer"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv2_D512_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 2,
+        "head_dim": 512,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k": [
+          "B",
+          2,
+          "Sq",
+          512
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          512
+        ],
+        "k_rot": [
+          "B",
+          2,
+          "Sq",
+          512
+        ]
+      },
+      "archetypes": [
+        "Gemma4-E4B.GlobalProducer"
+      ]
+    },
+    {
+      "id": "rope.Hq8_Hkv4_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 8,
+        "num_kv_heads": 4,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          4,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          8,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          4,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Gemma3-4B.GlobalFull",
+        "Gemma3-4B.LocalSliding"
+      ]
+    },
+    {
+      "id": "rope.Hq16_Hkv8_D128_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 16,
+        "num_kv_heads": 8,
+        "head_dim": 128,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          16,
+          "Sq",
+          128
+        ],
+        "k": [
+          "B",
+          8,
+          "Sq",
+          128
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          16,
+          "Sq",
+          128
+        ],
+        "k_rot": [
+          "B",
+          8,
+          "Sq",
+          128
+        ]
+      },
+      "archetypes": [
+        "Qwen3-0.6B.FullAttention",
+        "Qwen3-1.7B.FullAttention"
+      ]
+    },
+    {
+      "id": "rope.Hq32_Hkv8_D128_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 32,
+        "num_kv_heads": 8,
+        "head_dim": 128,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          32,
+          "Sq",
+          128
+        ],
+        "k": [
+          "B",
+          8,
+          "Sq",
+          128
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          32,
+          "Sq",
+          128
+        ],
+        "k_rot": [
+          "B",
+          8,
+          "Sq",
+          128
+        ]
+      },
+      "archetypes": [
+        "Qwen3-4B.FullAttention"
+      ]
+    },
+    {
+      "id": "rope.Hq32_Hkv16_D256_R256",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 32,
+        "num_kv_heads": 16,
+        "head_dim": 256,
+        "rotary_dim": 256
+      },
+      "inputs": {
+        "q": [
+          "B",
+          32,
+          "Sq",
+          256
+        ],
+        "k": [
+          "B",
+          16,
+          "Sq",
+          256
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          32,
+          "Sq",
+          256
+        ],
+        "k_rot": [
+          "B",
+          16,
+          "Sq",
+          256
+        ]
+      },
+      "archetypes": [
+        "Gemma4-31B.LocalSliding"
+      ]
+    },
+    {
+      "id": "rope.Hq32_Hkv4_D512_R128",
+      "layer_type": "RoPE",
+      "params": {
+        "num_q_heads": 32,
+        "num_kv_heads": 4,
+        "head_dim": 512,
+        "rotary_dim": 128
+      },
+      "inputs": {
+        "q": [
+          "B",
+          32,
+          "Sq",
+          512
+        ],
+        "k": [
+          "B",
+          4,
+          "Sq",
+          512
+        ],
+        "cos_sin": [
+          1,
+          1,
+          "Sq",
+          128
+        ]
+      },
+      "outputs": {
+        "q_rot": [
+          "B",
+          32,
+          "Sq",
+          512
+        ],
+        "k_rot": [
+          "B",
+          4,
+          "Sq",
+          512
+        ]
+      },
+      "archetypes": [
+        "Gemma4-31B.GlobalFull"
+      ]
+    }
+  ],
+  "linear_fc_layers": [
+    {
+      "id": "fc.N10240_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 10240,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        10240,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          10240
+        ]
+      },
+      "instances": 152,
+      "roles": [
+        "Gemma3-4B:gate_up",
+        "Gemma4-E4B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N1024_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        1024,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 148,
+      "roles": [
+        "Gemma3-4B.GlobalFull:kv_proj",
+        "Gemma3-4B.LocalSliding:kv_proj",
+        "Gemma4-E4B.GlobalProducer:kv_proj",
+        "Qwen3-4B.FullAttention:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N1024_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        1024,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 126,
+      "roles": [
+        "Qwen3-0.6B.FullAttention:o_proj",
+        "Qwen3-1.7B.FullAttention:kv_proj",
+        "Qwen3.5-0.8B.GatedDeltaNet:out_proj",
+        "Qwen3.5-0.8B.GatedFullAttention:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N1024_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        1024,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 92,
+      "roles": [
+        "Qwen3-0.6B.FullAttention:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N2048_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        2048,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 82,
+      "roles": [
+        "Qwen3-0.6B.FullAttention:q_proj",
+        "Qwen3.5-0.8B.GatedDeltaNet:in_proj_z"
+      ]
+    },
+    {
+      "id": "fc.N2560_K10240",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2560,
+        "in_features": 10240
+      },
+      "weight_shape_N_K": [
+        2560,
+        10240
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          10240
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "instances": 76,
+      "roles": [
+        "Gemma3-4B:down",
+        "Gemma4-E4B:down"
+      ]
+    },
+    {
+      "id": "fc.N9728_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 9728,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        9728,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          9728
+        ]
+      },
+      "instances": 72,
+      "roles": [
+        "Qwen3-4B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N6144_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 6144,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        6144,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          6144
+        ]
+      },
+      "instances": 70,
+      "roles": [
+        "Gemma4-E2B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N2048_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        2048,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 69,
+      "roles": [
+        "Gemma3-4B.GlobalFull:q_proj",
+        "Gemma3-4B.LocalSliding:q_proj",
+        "Gemma4-E4B.LocalProducer:q_proj",
+        "Gemma4-E4B.LocalSharedKV:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N2560_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2560,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        2560,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "instances": 69,
+      "roles": [
+        "Gemma3-4B.GlobalFull:o_proj",
+        "Gemma3-4B.LocalSliding:o_proj",
+        "Gemma4-E4B.LocalProducer:o_proj",
+        "Gemma4-E4B.LocalSharedKV:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N256_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 256,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        256,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          256
+        ]
+      },
+      "instances": 59,
+      "roles": [
+        "Gemma4-E2B.LocalProducer:kv_proj",
+        "Gemma4-E2B:ple_gate"
+      ]
+    },
+    {
+      "id": "fc.N6144_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 6144,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        6144,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          6144
+        ]
+      },
+      "instances": 56,
+      "roles": [
+        "Qwen3-1.7B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N2048_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        2048,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 56,
+      "roles": [
+        "Qwen3-1.7B.FullAttention:o_proj",
+        "Qwen3-1.7B.FullAttention:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N3072_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 3072,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        3072,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          3072
+        ]
+      },
+      "instances": 56,
+      "roles": [
+        "Qwen3-0.6B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N6912_K1152",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 6912,
+        "in_features": 1152
+      },
+      "weight_shape_N_K": [
+        6912,
+        1152
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          6912
+        ]
+      },
+      "instances": 52,
+      "roles": [
+        "Gemma3-1B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N256_K1152",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 256,
+        "in_features": 1152
+      },
+      "weight_shape_N_K": [
+        256,
+        1152
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          256
+        ]
+      },
+      "instances": 52,
+      "roles": [
+        "Gemma3-1B.GlobalFull:kv_proj",
+        "Gemma3-1B.LocalSliding:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N3584_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 3584,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        3584,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          3584
+        ]
+      },
+      "instances": 48,
+      "roles": [
+        "Qwen3.5-0.8B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N4096_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 4096,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        4096,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "instances": 43,
+      "roles": [
+        "Gemma4-E4B.GlobalProducer:q_proj",
+        "Gemma4-E4B.GlobalSharedKV:q_proj",
+        "Qwen3-4B.FullAttention:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N2560_K4096",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2560,
+        "in_features": 4096
+      },
+      "weight_shape_N_K": [
+        2560,
+        4096
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "instances": 43,
+      "roles": [
+        "Gemma4-E4B.GlobalProducer:o_proj",
+        "Gemma4-E4B.GlobalSharedKV:o_proj",
+        "Qwen3-4B.FullAttention:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N256_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 256,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        256,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          256
+        ]
+      },
+      "instances": 42,
+      "roles": [
+        "Gemma4-E4B:ple_gate"
+      ]
+    },
+    {
+      "id": "fc.N2560_K256",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2560,
+        "in_features": 256
+      },
+      "weight_shape_N_K": [
+        2560,
+        256
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "instances": 42,
+      "roles": [
+        "Gemma4-E4B:ple_proj"
+      ]
+    },
+    {
+      "id": "fc.N512_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 512,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        512,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          512
+        ]
+      },
+      "instances": 40,
+      "roles": [
+        "Gemma4-E4B.LocalProducer:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N2560_K9728",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2560,
+        "in_features": 9728
+      },
+      "weight_shape_N_K": [
+        2560,
+        9728
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          9728
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "instances": 36,
+      "roles": [
+        "Qwen3-4B:down"
+      ]
+    },
+    {
+      "id": "fc.N2048_K640",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 640
+      },
+      "weight_shape_N_K": [
+        2048,
+        640
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 36,
+      "roles": [
+        "Gemma3-270M:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N256_K640",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 256,
+        "in_features": 640
+      },
+      "weight_shape_N_K": [
+        256,
+        640
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          256
+        ]
+      },
+      "instances": 36,
+      "roles": [
+        "Gemma3-270M.GlobalFull:kv_proj",
+        "Gemma3-270M.LocalSliding:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N16_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 16,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        16,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          16
+        ]
+      },
+      "instances": 36,
+      "roles": [
+        "Qwen3.5-0.8B.GatedDeltaNet:in_proj_ab"
+      ]
+    },
+    {
+      "id": "fc.N1536_K6144",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1536,
+        "in_features": 6144
+      },
+      "weight_shape_N_K": [
+        1536,
+        6144
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          6144
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "instances": 35,
+      "roles": [
+        "Gemma4-E2B:down"
+      ]
+    },
+    {
+      "id": "fc.N1536_K256",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1536,
+        "in_features": 256
+      },
+      "weight_shape_N_K": [
+        1536,
+        256
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          256
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "instances": 35,
+      "roles": [
+        "Gemma4-E2B:ple_proj"
+      ]
+    },
+    {
+      "id": "fc.N2048_K6144",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 6144
+      },
+      "weight_shape_N_K": [
+        2048,
+        6144
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          6144
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 28,
+      "roles": [
+        "Qwen3-1.7B:down"
+      ]
+    },
+    {
+      "id": "fc.N2048_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        2048,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 28,
+      "roles": [
+        "Gemma4-E2B.LocalProducer:q_proj",
+        "Gemma4-E2B.LocalSharedKV:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N1536_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1536,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        1536,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "instances": 28,
+      "roles": [
+        "Gemma4-E2B.LocalProducer:o_proj",
+        "Gemma4-E2B.LocalSharedKV:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N1024_K3072",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 3072
+      },
+      "weight_shape_N_K": [
+        1024,
+        3072
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          3072
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 28,
+      "roles": [
+        "Qwen3-0.6B:down"
+      ]
+    },
+    {
+      "id": "fc.N1152_K6912",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1152,
+        "in_features": 6912
+      },
+      "weight_shape_N_K": [
+        1152,
+        6912
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          6912
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "instances": 26,
+      "roles": [
+        "Gemma3-1B:down"
+      ]
+    },
+    {
+      "id": "fc.N1024_K1152",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 1152
+      },
+      "weight_shape_N_K": [
+        1024,
+        1152
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 26,
+      "roles": [
+        "Gemma3-1B.GlobalFull:q_proj",
+        "Gemma3-1B.LocalSliding:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N1152_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1152,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        1152,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "instances": 26,
+      "roles": [
+        "Gemma3-1B.GlobalFull:o_proj",
+        "Gemma3-1B.LocalSliding:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N1024_K3584",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 3584
+      },
+      "weight_shape_N_K": [
+        1024,
+        3584
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          3584
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 24,
+      "roles": [
+        "Qwen3.5-0.8B:down"
+      ]
+    },
+    {
+      "id": "fc.N6144_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 6144,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        6144,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          6144
+        ]
+      },
+      "instances": 18,
+      "roles": [
+        "Qwen3.5-0.8B.GatedDeltaNet:in_proj_qkv"
+      ]
+    },
+    {
+      "id": "fc.N640_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 640,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        640,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          640
+        ]
+      },
+      "instances": 18,
+      "roles": [
+        "Gemma3-270M:down"
+      ]
+    },
+    {
+      "id": "fc.N1024_K640",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1024,
+        "in_features": 640
+      },
+      "weight_shape_N_K": [
+        1024,
+        640
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "instances": 18,
+      "roles": [
+        "Gemma3-270M.GlobalFull:q_proj",
+        "Gemma3-270M.LocalSliding:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N640_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 640,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        640,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          640
+        ]
+      },
+      "instances": 18,
+      "roles": [
+        "Gemma3-270M.GlobalFull:o_proj",
+        "Gemma3-270M.LocalSliding:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N512_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 512,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        512,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          512
+        ]
+      },
+      "instances": 12,
+      "roles": [
+        "Qwen3.5-0.8B.GatedFullAttention:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N4096_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 4096,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        4096,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "instances": 7,
+      "roles": [
+        "Gemma4-E2B.GlobalProducer:q_proj",
+        "Gemma4-E2B.GlobalSharedKV:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N1536_K4096",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 1536,
+        "in_features": 4096
+      },
+      "weight_shape_N_K": [
+        1536,
+        4096
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "instances": 7,
+      "roles": [
+        "Gemma4-E2B.GlobalProducer:o_proj",
+        "Gemma4-E2B.GlobalSharedKV:o_proj"
+      ]
+    },
+    {
+      "id": "fc.N4096_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 4096,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        4096,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "instances": 6,
+      "roles": [
+        "Qwen3.5-0.8B.GatedFullAttention:q_proj"
+      ]
+    },
+    {
+      "id": "fc.N512_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 512,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        512,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          512
+        ]
+      },
+      "instances": 6,
+      "roles": [
+        "Gemma4-E2B.GlobalProducer:kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N262144_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 262144,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        262144,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          262144
+        ]
+      },
+      "instances": 2,
+      "roles": [
+        "Gemma3-4B:lm_head",
+        "Gemma4-E4B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N262144_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 262144,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        262144,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          262144
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma4-E2B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N151936_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 151936,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        151936,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          151936
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Qwen3-4B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N151936_K2048",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 151936,
+        "in_features": 2048
+      },
+      "weight_shape_N_K": [
+        151936,
+        2048
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          151936
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Qwen3-1.7B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N262144_K1152",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 262144,
+        "in_features": 1152
+      },
+      "weight_shape_N_K": [
+        262144,
+        1152
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1152
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          262144
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma3-1B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N248320_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 248320,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        248320,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          248320
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Qwen3.5-0.8B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N262144_K640",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 262144,
+        "in_features": 640
+      },
+      "weight_shape_N_K": [
+        262144,
+        640
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          640
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          262144
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma3-270M:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N151936_K1024",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 151936,
+        "in_features": 1024
+      },
+      "weight_shape_N_K": [
+        151936,
+        1024
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1024
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          151936
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Qwen3-0.6B:lm_head"
+      ]
+    },
+    {
+      "id": "fc.N8960_K1536",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 8960,
+        "in_features": 1536
+      },
+      "weight_shape_N_K": [
+        8960,
+        1536
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          1536
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          8960
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma4-E2B:per_layer_model_projection"
+      ]
+    },
+    {
+      "id": "fc.N10752_K2560",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 10752,
+        "in_features": 2560
+      },
+      "weight_shape_N_K": [
+        10752,
+        2560
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          2560
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          10752
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma4-E4B:per_layer_model_projection"
+      ]
+    },
+    {
+      "id": "fc.N21504_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 21504,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        21504,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          21504
+        ]
+      },
+      "instances": 120,
+      "roles": [
+        "Gemma4-31B:gate_up"
+      ]
+    },
+    {
+      "id": "fc.N5376_K21504",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 5376,
+        "in_features": 21504
+      },
+      "weight_shape_N_K": [
+        5376,
+        21504
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          21504
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "instances": 60,
+      "roles": [
+        "Gemma4-31B:down_proj"
+      ]
+    },
+    {
+      "id": "fc.N8192_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 8192,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        8192,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          8192
+        ]
+      },
+      "instances": 50,
+      "roles": [
+        "Gemma4-31B:local_q_proj"
+      ]
+    },
+    {
+      "id": "fc.N4096_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 4096,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        4096,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          4096
+        ]
+      },
+      "instances": 100,
+      "roles": [
+        "Gemma4-31B:local_kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N5376_K8192",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 5376,
+        "in_features": 8192
+      },
+      "weight_shape_N_K": [
+        5376,
+        8192
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          8192
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "instances": 50,
+      "roles": [
+        "Gemma4-31B:local_o_proj"
+      ]
+    },
+    {
+      "id": "fc.N16384_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 16384,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        16384,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          16384
+        ]
+      },
+      "instances": 10,
+      "roles": [
+        "Gemma4-31B:global_q_proj"
+      ]
+    },
+    {
+      "id": "fc.N2048_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 2048,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        2048,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          2048
+        ]
+      },
+      "instances": 10,
+      "roles": [
+        "Gemma4-31B:global_kv_proj"
+      ]
+    },
+    {
+      "id": "fc.N5376_K16384",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 5376,
+        "in_features": 16384
+      },
+      "weight_shape_N_K": [
+        5376,
+        16384
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          16384
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "instances": 10,
+      "roles": [
+        "Gemma4-31B:global_o_proj"
+      ]
+    },
+    {
+      "id": "fc.N262144_K5376",
+      "layer_type": "FullyConnected",
+      "params": {
+        "out_features": 262144,
+        "in_features": 5376
+      },
+      "weight_shape_N_K": [
+        262144,
+        5376
+      ],
+      "inputs": {
+        "x": [
+          "B*Sq",
+          5376
+        ]
+      },
+      "outputs": {
+        "y": [
+          "B*Sq",
+          262144
+        ]
+      },
+      "instances": 1,
+      "roles": [
+        "Gemma4-31B:lm_head"
+      ]
+    }
+  ]
+}

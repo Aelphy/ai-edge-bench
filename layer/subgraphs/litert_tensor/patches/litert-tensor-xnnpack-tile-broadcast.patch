@@ -1,0 +1,13 @@
+diff --git a/tensor/backends/xnnpack/arithmetic.cc b/tensor/backends/xnnpack/arithmetic.cc
+index 01011bdbf7..01011bed2e 100644
+--- a/tensor/backends/xnnpack/arithmetic.cc
++++ b/tensor/backends/xnnpack/arithmetic.cc
+@@ -1202,7 +1202,7 @@ absl::Status OpMixin<TileOperation, XnnpackMixinTag>::ToXnnpack(
+           "Dimension %d has size %d but multiples[%d]=%d",
+           op_name, i, dim, i, mult));
+     }
+-    new_shape[i] = static_cast<size_t>(dim * mult);
++    new_shape[i] = (mult == 1) ? 0 : static_cast<size_t>(dim * mult);
+   }
+ 
+   LRT_TENSOR_RETURN_IF_ERROR(xnn_define_static_broadcast(
