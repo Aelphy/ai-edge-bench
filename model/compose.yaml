@@ -45,6 +45,8 @@ x-aeb-harness-service: &aeb-harness-service
     - ./models:/models
     - ./results:/results
     - ./datasets:/datasets:ro
+    - ../kernel:/kernel:ro
+    - ../layer:/layer:ro
   entrypoint: ["python3", "-m"]
 
 services:
@@ -149,6 +151,26 @@ services:
       AEB_YNNPACK: "true"
     command: ["aeb-bench-litert-lm"]
 
+  # --------------------------------------------------------- LiteRT Tensor API
+  # Layer-level microbenchmarking (RMSNorm, RoPE, GatedMLP, SDPA, Decode SDPA,
+  # TransformerBlock) via the framework-agnostic layer_ml_bench C++ harness.
+  litert-tensor:
+    profiles: ["cpu", "litert-tensor", "layer", "all"]
+    image: ${AEB_IMAGE_PREFIX:-aeb}/litert-tensor:cpu
+    build:
+      context: ..
+      dockerfile: model/docker/litert-tensor/Dockerfile
+      args:
+        AEB_BASE_IMAGE: ${AEB_BASE_IMAGE:-aeb/base:latest}
+        BUILDER_BASE: ${AEB_LITERT_TENSOR_BUILDER_BASE:-ubuntu:24.04}
+        RUNTIME_BASE: ${AEB_LITERT_TENSOR_RUNTIME_BASE:-ubuntu:24.04}
+        BAZEL_CONFIG: ${AEB_LITERT_TENSOR_BAZEL_CONFIG:-linux_x86_64}
+        BAZEL_JOBS: ${AEB_BUILD_JOBS:-0}
+        LITERT_REF: ${AEB_LITERT_REF:-main}
+    <<: *aeb-service
+    environment: *aeb-workload
+    command: ["python3", "-m", "aeb.layer", "--help"]
+
   # -------------------------------------------------------- optional CPU engines
   onnxruntime:
     profiles: ["onnxruntime", "x86-sota"]
@@ -212,6 +234,13 @@ services:
     <<: *aeb-harness-service
     environment: *aeb-workload
     command: ["aeb.perf", "--help"]
+
+  harness-litert-tensor:
+    profiles: ["harness"]
+    image: ${AEB_IMAGE_PREFIX:-aeb}/litert-tensor:cpu
+    <<: *aeb-harness-service
+    environment: *aeb-workload
+    command: ["aeb.layer", "--help"]
 
   harness-onnxruntime:
     profiles: ["harness"]

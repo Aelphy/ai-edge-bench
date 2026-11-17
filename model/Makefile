@@ -19,7 +19,7 @@ SINCE ?=
 .DEFAULT_GOAL := help
 .PHONY: help base images models bench bench-llama-cpp bench-litert-lm \
         bench-gpu sysinfo config machines clean-results tools matched-models \
-        datasets suite-perf suite-accuracy suite-repro report dashboard test diagnose-activations \
+        datasets suite-perf suite-prefix-cache suite-layer suite-accuracy suite-repro report dashboard test diagnose-activations \
         arm-images arm-models suite-sequence native gpu-models native-report \
         native-crosscheck
 
@@ -42,6 +42,7 @@ help:
 	@echo "  make MACHINE=<m> matched-models build matched-weights GGUFs from the QAT checkpoint"
 	@echo "  make datasets                   stage pinned MMLU + GSM8K into ./datasets"
 	@echo "  make MACHINE=<m> suite-perf     prime caches, then interleaved timing rounds"
+	@echo "  make MACHINE=<m> suite-layer    layer-level Roofline & LMLB parity microbenchmarks"
 	@echo "  make MACHINE=<m> suite-sequence input-length sweep (suite must define sequence_sweep)"
 	@echo "  make MACHINE=<m> suite-accuracy accuracy gate for every suite config"
 	@echo "  make MACHINE=<m> suite-repro    output reproducibility (greedy + seeded)"
@@ -123,6 +124,9 @@ suite-perf:
 
 suite-prefix-cache:
 	python3 scripts/suite.py prefix-cache --machine $(MACHINE) --suite $(SUITE)
+
+suite-layer:
+	python3 scripts/suite.py layer --machine $(MACHINE) --suite $(SUITE)
 
 suite-sequence:
 	python3 scripts/suite.py sequence --machine $(MACHINE) --suite $(SUITE)

@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SERVICE = {
     "llama.cpp": "harness-llama-cpp",
     "litert-lm": "harness-litert-lm",
+    "litert-tensor": "harness-litert-tensor",
     "onnxruntime": "harness-onnxruntime",
     "xla": "harness-xla",
     "openvino": "harness-openvino",
@@ -41,7 +42,7 @@ SERVICE = {
 # with the stack built by scripts/native-apple-gpu.sh.
 NATIVE = ROOT / "build" / "native"
 NATIVE_BUILD_INFO = {"llama.cpp": "llama.cpp", "litert-lm": "litert-lm", "mlx": "mlx",
-                     "basert": "basert"}
+                     "basert": "basert", "litert-tensor": "litert-tensor"}
 EXECUTION = {"mode": "container", "machine_notes": "", "chat_template": "gemma4"}
 
 
@@ -270,6 +271,81 @@ def _has_complete_repro(results_dir: Path | None, machine: str, fw: str, label: 
         and meta.get("seed") == expected_seed and int(meta.get("threads") or 0) == int(threads)):
       return True
   return False
+
+
+def _has_complete_layer(results_dir: Path | None, machine: str, fw: str, label: str,
+                        round_idx: int = 0) -> bool:
+  if results_dir is None:
+    return False
+  cfg_dir = results_dir / machine / "layer" / fw / label
+  if not cfg_dir.is_dir():
+    return False
+  for summ_p in sorted(cfg_dir.glob("*/summary.json")):
+    meta_p = summ_p.parent / "meta.json"
+    if not meta_p.is_file():
+      continue
+    try:
+      summ = json.loads(summ_p.read_text())
+      meta = json.loads(meta_p.read_text())
+    except (OSError, json.JSONDecodeError):
+      continue
+    if summ.get("status") == "ok" and int(summ.get("n_layers", 0)) > 0:
+      if int(meta.get("round", 0)) == int(round_idx):
+        return True
+  return False
+
+
+def layer_commands(suite, ctx, machine, rounds, only, dev,
+                   results_dir: Path | None = None, skip_existing: bool = False):
+  """Generate layer-level microbenchmark and parity verification commands."""
+  lb = suite.get("layer_benchmarks") or {}
+  l_cfgs = lb.get("configs") or []
+  if not l_cfgs:
+    return []
+  if only:
+    want = set(only.split(","))
+    l_cfgs = [c for c in l_cfgs if c["id"] in want]
+    if not l_cfgs:
+      return []
+  presets = ",".join(lb.get("presets", ["Gemma4-E2B", "Gemma4-E2B-WideMLP"]))
+  batch_size = int(lb.get("batch_size", 1))
+  seq_len = int(lb.get("seq_len", suite.get("workload", {}).get("prompt_tokens", 1024)))
+  threads = str(resolve(str(lb.get("threads", "{threads}")), ctx))
+  min_time = str(lb.get("min_time", "0.2s"))
+  seed = int(lb.get("seed", 1234))
+  parity_dir = str(lb.get("parity_dir", f"/results/{machine}/layer/_parity_ref"))
+  l_rounds = int(lb.get("rounds", 1))
+
+  out = []
+  for r in range(l_rounds):
+    for c in l_cfgs:
+      fw, label = c["framework"], c["id"].split("/", 1)[1]
+      backend = c.get("backend", label)
+      if skip_existing and _has_complete_layer(results_dir, machine, fw, label, r):
+        print(f"[suite] skip existing layer {c['id']} (round {r})", flush=True)
+        continue
+      args = [
+          "aeb.layer",
+          "--framework", fw,
+          "--label", label,
+          "--backend", backend,
+          "--presets", presets,
+          "--batch-size", str(batch_size),
+          "--seq-len", str(seq_len),
+          "--threads", threads,
+          "--min-time", min_time,
+          "--seed", str(seed),
+          "--round", str(r),
+          "--notes", f"suite={suite['name']}",
+      ]
+      if c.get("binary"):
+        args += ["--binary", resolve(str(c["binary"]), ctx)]
+      if r == 0 and c.get("parity_role") == "reference":
+        args += ["--dump-parity-dir", parity_dir]
+      elif r == 0 and c.get("parity_role") == "candidate":
+        args += ["--compare-parity-dir", parity_dir]
+      out.append((f"layer {c['id']}", run_cmd(machine, fw, args, dev)))
+  return out
 
 
 def perf_commands(suite, ctx, machine, rounds, only, dev,
@@ -749,7 +825,7 @@ def keep_awake() -> None:
 def main(argv=None) -> int:
   ap = argparse.ArgumentParser(description=__doc__,
                                formatter_class=argparse.RawDescriptionHelpFormatter)
-  ap.add_argument("action", choices=["perf", "sequence", "prefix-cache", "accuracy", "repro", "plan"])
+  ap.add_argument("action", choices=["perf", "sequence", "prefix-cache", "layer", "accuracy", "repro", "plan"])
   ap.add_argument("--machine", required=True)
   ap.add_argument("--suite", type=Path, default=ROOT / "suites" / "gemma4-e2b-cpu.json")
   ap.add_argument("--rounds", type=int)
@@ -789,9 +865,15 @@ def main(argv=None) -> int:
     if args.action == "plan" and suite.get("prefix_cache"):
       cmds += prefix_cache_commands(suite, ctx, args.machine, rounds, args.only, args.dev,
                                     results_dir=args.results, skip_existing=args.skip_existing)
+    if args.action == "plan" and suite.get("layer_benchmarks"):
+      cmds += layer_commands(suite, ctx, args.machine, rounds, args.only, args.dev,
+                             results_dir=args.results, skip_existing=args.skip_existing)
   elif args.action == "prefix-cache":
     cmds = prefix_cache_commands(suite, ctx, args.machine, rounds, args.only, args.dev,
                                  results_dir=args.results, skip_existing=args.skip_existing)
+  elif args.action == "layer":
+    cmds = layer_commands(suite, ctx, args.machine, rounds, args.only, args.dev,
+                          results_dir=args.results, skip_existing=args.skip_existing)
   elif args.action == "sequence":
     seq_only = args.only
     if not seq_only:

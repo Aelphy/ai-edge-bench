@@ -40,6 +40,10 @@ services:
   litert-lm-ynnpack:
     <<: *gnr-litert
 
+  litert-tensor:
+    platform: linux/amd64
+    environment: *machine
+
   xla:
     platform: linux/amd64
     environment: *machine
@@ -58,6 +62,10 @@ services:
     environment: *machine
 
   harness-litert-lm:
+    platform: linux/amd64
+    environment: *machine
+
+  harness-litert-tensor:
     platform: linux/amd64
     environment: *machine
 

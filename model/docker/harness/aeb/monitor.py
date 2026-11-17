@@ -42,10 +42,15 @@ FIELDS = ("t_ns", "cpu_ticks", "rss_kb", "rss_anon_kb", "rss_file_kb", "rss_shme
           "footprint_kb", "footprint_max_kb", "gpu_ns", "gpu_util_pct", "gpu_mem_kb", "energy_nj")
 
 
-def read_cpu_ticks(pid: int) -> int | None:
-  if DARWIN:
-    r = macos.proc_rusage(pid)
-    return r["cpu_ns"] // 1000 if r else None
+def _child_pids(pid: int) -> list[int]:
+  try:
+    with open(f"/proc/{pid}/task/{pid}/children") as f:
+      return [int(x) for x in f.read().split() if x.isdigit()]
+  except OSError:
+    return []
+
+
+def _read_single_cpu_ticks(pid: int) -> int | None:
   try:
     with open(f"/proc/{pid}/stat", "rb") as f:
       data = f.read().decode()
@@ -56,7 +61,21 @@ def read_cpu_ticks(pid: int) -> int | None:
   return int(rest[11]) + int(rest[12])  # utime, stime (fields 14, 15)
 
 
-def read_status(pid: int) -> dict | None:
+def read_cpu_ticks(pid: int) -> int | None:
+  if DARWIN:
+    r = macos.proc_rusage(pid)
+    return r["cpu_ns"] // 1000 if r else None
+  base = _read_single_cpu_ticks(pid)
+  if base is None:
+    return None
+  for cpid in _child_pids(pid):
+    ct = _read_single_cpu_ticks(cpid)
+    if ct is not None:
+      base += ct
+  return base
+
+
+def _read_single_status(pid: int) -> dict | None:
   out = {}
   try:
     with open(f"/proc/{pid}/status") as f:
@@ -71,7 +90,19 @@ def read_status(pid: int) -> dict | None:
   return out
 
 
-def read_pss_kb(pid: int) -> int | None:
+def read_status(pid: int) -> dict | None:
+  out = _read_single_status(pid)
+  if out is None:
+    return None
+  for cpid in _child_pids(pid):
+    cout = _read_single_status(cpid)
+    if cout is not None:
+      for k, v in cout.items():
+        out[k] = out.get(k, 0) + v
+  return out
+
+
+def _read_single_pss_kb(pid: int) -> int | None:
   try:
     with open(f"/proc/{pid}/smaps_rollup") as f:
       for line in f:
@@ -80,6 +111,17 @@ def read_pss_kb(pid: int) -> int | None:
   except OSError:
     return None
   return None
+
+
+def read_pss_kb(pid: int) -> int | None:
+  base = _read_single_pss_kb(pid)
+  if base is None:
+    return None
+  for cpid in _child_pids(pid):
+    cpss = _read_single_pss_kb(cpid)
+    if cpss is not None:
+      base += cpss
+  return base
 
 
 def read_cgroup_mem() -> int | None:

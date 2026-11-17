@@ -13,7 +13,7 @@ AEB_BASE_OS_IMAGE ?= ubuntu:24.04
 
 MODEL_TARGETS := images models bench bench-llama-cpp bench-litert-lm \
                  bench-gpu sysinfo config machines clean-results tools matched-models \
-                 datasets suite-perf suite-prefix-cache suite-accuracy suite-repro report \
+                 datasets suite-perf suite-prefix-cache suite-layer suite-accuracy suite-repro report \
                  dashboard diagnose-activations arm-images arm-models x86-images x86-models \
                  suite-sequence native gpu-models native-report native-crosscheck
 

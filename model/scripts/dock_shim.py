@@ -40,11 +40,13 @@ SERVICE_MAP = {
         ["aeb-bench-litert-lm"],
         {"AEB_YNNPACK": "true", "AEB_BACKEND": "cpu", "AEB_CTX": "4096"},
     ),
+    "litert-tensor": ("litert-tensor", [], ["python3", "-m", "aeb.layer", "--help"], {}),
     "onnxruntime": ("onnxruntime", [], ["python3", "-m", "aeb.perf", "--help"], {}),
     "xla": ("xla", [], ["python3", "-m", "aeb.perf", "--help"], {}),
     "openvino": ("openvino", [], ["python3", "-m", "aeb.perf", "--help"], {}),
     "harness-llama-cpp": ("llama-cpp", ["python3", "-m"], ["aeb.perf", "--help"], {}),
     "harness-litert-lm": ("litert-lm", ["python3", "-m"], ["aeb.perf", "--help"], {}),
+    "harness-litert-tensor": ("litert-tensor", ["python3", "-m"], ["aeb.perf", "--help"], {}),
     "harness-onnxruntime": ("onnxruntime", ["python3", "-m"], ["aeb.perf", "--help"], {}),
     "harness-xla": ("xla", ["python3", "-m"], ["aeb.perf", "--help"], {}),
     "harness-openvino": ("openvino", ["python3", "-m"], ["aeb.perf", "--help"], {}),
@@ -55,6 +57,7 @@ IMAGE_MAP = {
     "aeb/tools:latest": "tools",
     "aeb/llama-cpp:cpu": "llama-cpp",
     "aeb/litert-lm:cpu": "litert-lm",
+    "aeb/litert-tensor:cpu": "litert-tensor",
     "aeb/onnxruntime:cpu": "onnxruntime",
     "aeb/xla:cpu": "xla",
     "aeb/openvino:cpu": "openvino",
@@ -63,6 +66,7 @@ IMAGE_MAP = {
 DEFAULT_ENV = {
     "PATH": (
         "/opt/aeb/venv/bin:/opt/aeb/bin:/opt/llama.cpp/bin:/opt/litert-lm/bin:"
+        "/opt/litert-tensor/bin:"
         "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     ),
     "PYTHONPATH": "/opt/aeb/harness:/opt/litert-lm/python",

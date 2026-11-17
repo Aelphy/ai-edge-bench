@@ -21,6 +21,7 @@ import datetime as dt
 import hashlib
 import html
 import json
+import math
 import mimetypes
 from pathlib import Path
 import re
@@ -38,6 +39,7 @@ from . import gpucheck, stats  # noqa: E402
 COLORS = {
     "llama.cpp": "#d9822b",
     "litert-lm": "#2b6cd9",
+    "litert-tensor": "#1a73e8",
     "onnxruntime": "#9c4d9f",
     "xla": "#2e8b57",
     "openvino": "#0095a8",
@@ -122,6 +124,20 @@ def load_accuracy(results: Path, machine: str) -> list[dict]:
   for summ_p in sorted(results.glob(f"{machine}/accuracy-*/*/*/*/summary.json")):
     meta, summ = _gpu_checked(summ_p.parent, _read_json(summ_p.parent / "meta.json") or {},
                               _read_json(summ_p))
+    out.append({"dir": summ_p.parent, "meta": meta, "summary": summ})
+  return out
+
+
+def load_layer(results: Path, machine: str) -> list[dict]:
+  out = []
+  layer_root = results / machine / "layer"
+  if not layer_root.is_dir():
+    return out
+  for summ_p in sorted(layer_root.glob("*/*/*/summary.json")):
+    meta = _read_json(summ_p.parent / "meta.json") or {}
+    summ = _read_json(summ_p)
+    if summ is None:
+      continue
     out.append({"dir": summ_p.parent, "meta": meta, "summary": summ})
   return out
 
@@ -760,6 +776,327 @@ def prefix_cache_section(data: dict) -> str:
   return "\n".join(lines) + "\n"
 
 
+def layer_data(layer_runs: list[dict], suite: dict, since: str | None = None) -> dict:
+  """Aggregate the latest layer-benchmark run per configured layer backend."""
+  if not layer_runs:
+    return {}
+  tag = f"suite={suite['name']}"
+  lb_cfg = suite.get("layer_benchmarks") or {}
+  configured_ids = [c["id"] for c in (lb_cfg.get("configs") or [])]
+
+  by_cid: dict[str, dict] = {}
+  for r in sorted(layer_runs, key=lambda r: r["meta"].get("started_at", "")):
+    m = r["meta"]
+    s = r["summary"]
+    notes = m.get("notes", "")
+    if since and m.get("started_at", "") < since:
+      continue
+    if notes and not notes.startswith(tag):
+      continue
+    if s.get("status") != "ok":
+      continue
+    cid = f"{m.get('framework', 'litert-tensor')}/{m.get('label', m.get('backend', 'xnnpack'))}"
+    if configured_ids and cid not in configured_ids:
+      continue
+    by_cid[cid] = r
+
+  if not by_cid:
+    return {}
+
+  order = [cid for cid in configured_ids if cid in by_cid] + [
+      cid for cid in sorted(by_cid) if cid not in configured_ids
+  ]
+  configs_out = {}
+  presets_seen = []
+  layers_seen = []
+  for cid in order:
+    r = by_cid[cid]
+    m, s = r["meta"], r["summary"]
+    by_key = {}
+    for lyr in s.get("layers", []):
+      p = lyr.get("preset", "")
+      l_name = lyr.get("layer", "")
+      if p and p not in presets_seen:
+        presets_seen.append(p)
+      if l_name and l_name not in layers_seen:
+        layers_seen.append(l_name)
+      by_key[f"{p}/{l_name}"] = lyr
+    configs_out[cid] = {
+        "backend": m.get("backend", s.get("backend", cid.split("/")[-1])),
+        "params": m.get("params", {}),
+        "parity_all_passed": s.get("parity_all_passed"),
+        "parity": s.get("parity", []),
+        "layers": s.get("layers", []),
+        "by_key": by_key,
+        "run_dir": str(r["dir"]),
+        "meta": _meta_slim(m),
+    }
+
+  return {
+      "configs": configs_out,
+      "presets": presets_seen,
+      "layers": layers_seen,
+  }
+
+
+def layer_charts(out: Path, ldata: dict) -> tuple[bool, bool]:
+  """Render layer_latency.png (latency & speedup) and layer_roofline.png (GFLOPS vs AI)."""
+  if not ldata or not ldata.get("configs"):
+    return False, False
+  cfg_ids = list(ldata["configs"])
+  presets = ldata.get("presets") or ["Gemma4-E2B"]
+  layers = ldata.get("layers") or []
+  if not layers:
+    return False, False
+
+  palette = ["#2b6cd9", "#13408f", "#2e8b57", "#d9822b", "#9c4d9f"]
+
+  # 1. Layer latency & GFLOPS grouped bar chart across presets
+  fig, axes = plt.subplots(
+      len(presets), 1, figsize=(11.5, 4.4 * len(presets)), squeeze=False
+  )
+  for idx, preset in enumerate(presets):
+    ax = axes[idx][0]
+    x_pos = list(range(len(layers)))
+    width = 0.76 / max(1, len(cfg_ids))
+    for k, cid in enumerate(cfg_ids):
+      c = ldata["configs"][cid]
+      vals = [
+          (c["by_key"].get(f"{preset}/{l}") or {}).get("real_time_ms", 0.0)
+          for l in layers
+      ]
+      offset = (k - (len(cfg_ids) - 1) / 2.0) * width
+      xs = [x + offset for x in x_pos]
+      col = palette[k % len(palette)]
+      ax.bar(
+          xs,
+          vals,
+          width=width,
+          color=col,
+          alpha=0.9,
+          edgecolor="black",
+          linewidth=0.5,
+          label=f"{cid} ({c['backend']})",
+      )
+      for x, v in zip(xs, vals):
+        if v > 0:
+          txt = f"{v:.2f}" if v < 10 else f"{v:.1f}"
+          ax.annotate(
+              txt,
+              (x, v),
+              ha="center",
+              va="bottom",
+              fontsize=7,
+              xytext=(0, 2),
+              textcoords="offset points",
+          )
+    ax.set_yscale("log")
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(layers, rotation=22, ha="right", fontsize=8.5)
+    ax.set_ylabel("Latency (ms, log scale) ↓")
+    ax.set_title(
+        f"Layer-level latency breakdown — {preset} (FP32, L2/LLC cold cache per iteration)",
+        fontsize=10.5,
+        fontweight="bold",
+    )
+    ax.grid(axis="y", which="both", alpha=0.3)
+    ax.legend(fontsize=8.5)
+  fig.tight_layout()
+  fig.savefig(out / "layer_latency.png", dpi=130)
+  plt.close(fig)
+
+  # 2. Roofline scatter chart (GFLOPS vs Arithmetic Intensity FLOPs/Byte)
+  fig, ax = plt.subplots(figsize=(11.5, 6.4))
+  markers = ["o", "s", "^", "D", "v"]
+  all_ais, all_gfs = [], []
+  first_pts = []
+  for k, cid in enumerate(cfg_ids):
+    c = ldata["configs"][cid]
+    col = palette[k % len(palette)]
+    mk = markers[k % len(markers)]
+    ais, gflops_list, labels = [], [], []
+    for lyr in c["layers"]:
+      ai = lyr.get("arithmetic_intensity", 0.0)
+      gf = lyr.get("gflops", 0.0)
+      if ai > 0 and gf > 0:
+        ais.append(ai)
+        gflops_list.append(gf)
+        all_ais.append(ai)
+        all_gfs.append(gf)
+        short_pre = "WideMLP" if "Wide" in lyr["preset"] else "E2B"
+        labels.append(f"{short_pre}:{lyr['layer']}")
+    if ais:
+      ax.scatter(
+          ais,
+          gflops_list,
+          color=col,
+          marker=mk,
+          s=75,
+          alpha=0.9,
+          edgecolors="black",
+          linewidths=0.7,
+          label=f"{cid} ({c['backend']})",
+          zorder=4,
+      )
+      if k == 0:
+        first_pts = list(zip(ais, gflops_list, labels))
+  ax.set_xscale("log", base=2)
+  ax.set_yscale("log", base=10)
+  if all_ais and all_gfs:
+    ax.set_xlim(min(all_ais) * 0.55, max(all_ais) * 7.5)
+    ax.set_ylim(min(all_gfs) * 0.55, max(all_gfs) * 2.4)
+  # Spread annotations vertically within log-space clusters so labels never collide
+  first_pts.sort(key=lambda pt: (round(math.log2(pt[0]), 1), pt[1]))
+  placed_y: list[tuple[float, float]] = []
+  for ai, gf, lbl in first_pts:
+    lx = math.log2(ai)
+    ly = math.log10(gf)
+    dy_pts = 0
+    for cand_dy in (0, 11, -11, 22, -22, 33, -33, 44, -44, 55, -55):
+      eff_ly = ly + cand_dy * 0.016
+      if all(abs(lx - px) > 0.7 or abs(eff_ly - py) >= 0.095 for px, py in placed_y):
+        dy_pts = cand_dy
+        placed_y.append((lx, eff_ly))
+        break
+    else:
+      placed_y.append((lx, ly))
+    ax.annotate(
+        lbl,
+        (ai, gf),
+        xytext=(8, dy_pts),
+        textcoords="offset points",
+        ha="left",
+        va="center",
+        fontsize=7.5,
+        alpha=0.9,
+        arrowprops=(
+            {"arrowstyle": "-", "color": "#888888", "lw": 0.6}
+            if abs(dy_pts) >= 10
+            else None
+        ),
+        zorder=5,
+    )
+  ax.set_xlabel("Arithmetic Intensity (FLOPs / Byte, log₂) →")
+  ax.set_ylabel("Achieved Compute Throughput (GFLOP/s, log₁₀) ↑")
+  ax.set_title(
+      "Layer-Level Roofline Profile (Achieved GFLOP/s vs. Theoretical Arithmetic Intensity)",
+      fontsize=11,
+      fontweight="bold",
+  )
+  ax.grid(True, which="both", alpha=0.3)
+  ax.legend(fontsize=9)
+  fig.tight_layout()
+  fig.savefig(out / "layer_roofline.png", dpi=130)
+  plt.close(fig)
+  return True, True
+
+
+def layer_section(ldata: dict) -> str:
+  """Render the Markdown section for layer-level microbenchmarks and LMLB parity."""
+  if not ldata or not ldata.get("configs"):
+    return ""
+  cfg_ids = list(ldata["configs"])
+  first_cfg = ldata["configs"][cfg_ids[0]]
+  params = first_cfg.get("params") or {}
+  b_sz = params.get("batch_size", 1)
+  s_len = params.get("seq_len", 1024)
+  thr = params.get("threads", 32)
+
+  lines = [
+      "### Layer-level microbenchmarks & Roofline breakdown (`layer_ml_bench`)\n",
+      f"Sub-model operator and block microbenchmarks driven by the framework-agnostic "
+      f"`layer_ml_bench` C++ harness (`B={b_sz}`, `S={s_len}`, `{thr}` threads, FP32, "
+      f"L2/LLC cache eviction buffer wiped before each timed iteration). Isolates "
+      f"**RMSNorm**, **RoPE**, **GatedMLP (SwiGLU / GeGLU)**, **StandardAttention "
+      f"(Prefill / Decode)**, **DecodeOptimizedAttention**, and full **TransformerBlock "
+      f"(Prefill / Decode)** across `Gemma4-E2B` (`embed_dim=1536, q_dim=2048, kv_dim=256, "
+      f"hidden_dim=6144`) and `Gemma4-E2B-WideMLP` (`hidden_dim=12288`).\n",
+  ]
+
+  for preset in ldata.get("presets", []):
+    lines.append(f"#### `{preset}` Layer Breakdown (B={b_sz}, S={s_len}, Threads={thr})\n")
+    hdr = [
+        "| Layer | Arithmetic Intensity (FLOP/B) | Workspace Peak (KB) | "
+        + " | ".join(
+            f"`{cid}` Latency (ms) ↓ | `{cid}` GFLOP/s ↑ | `{cid}` GB/s ↑"
+            for cid in cfg_ids
+        )
+        + (" | Speedup (`" + cfg_ids[0] + "` ÷ `" + cfg_ids[1] + "`) |" if len(cfg_ids) >= 2 else " |")
+    ]
+    sep_cols = 3 + 3 * len(cfg_ids) + (1 if len(cfg_ids) >= 2 else 0)
+    lines.append(hdr[0])
+    lines.append("| --- " + "| ---: " * (sep_cols - 1) + "|")
+    for l_name in ldata.get("layers", []):
+      key = f"{preset}/{l_name}"
+      first_lyr = None
+      for cid in cfg_ids:
+        if key in ldata["configs"][cid]["by_key"]:
+          first_lyr = ldata["configs"][cid]["by_key"][key]
+          break
+      if not first_lyr:
+        continue
+      ai = first_lyr.get("arithmetic_intensity", 0.0)
+      ws_kb = first_lyr.get("workspace_peak_bytes", 0.0) / 1024.0
+      row_cells = [f"`{l_name}`", f"{ai:.2f}", f"{ws_kb:,.1f}"]
+      latencies = []
+      for cid in cfg_ids:
+        entry = ldata["configs"][cid]["by_key"].get(key)
+        if entry:
+          lat = entry["real_time_ms"]
+          latencies.append(lat)
+          row_cells.extend([
+              f"{lat:.3f}",
+              f"{entry['gflops']:.2f}",
+              f"{entry['gbps']:.2f}",
+          ])
+        else:
+          latencies.append(None)
+          row_cells.extend(["n/a", "n/a", "n/a"])
+      if len(cfg_ids) >= 2:
+        if latencies[0] and latencies[1] and latencies[1] > 0:
+          sp = latencies[0] / latencies[1]
+          row_cells.append(f"**{sp:.2f}×**")
+        else:
+          row_cells.append("n/a")
+      lines.append("| " + " | ".join(row_cells) + " |")
+    lines.append("")
+
+  # Numerical parity table if any config ran comparison
+  cand_cfgs = [
+      (cid, c)
+      for cid, c in ldata["configs"].items()
+      if c.get("parity") and any("max_abs_error" in r for r in c["parity"])
+  ]
+  if cand_cfgs:
+    lines.append("#### Cross-Backend Numerical Parity (`LMLB` Binary Tensor Verification)\n")
+    lines.append(
+        "Bit-exact seeded inputs and weights (`--seed=1234`) executed through the "
+        "reference backend (`xnnpack`) and compared against candidate backend "
+        "(`ynnpack`) using `|cand - ref| <= atol + rtol * |ref|` (`rtol=1e-4, atol=1e-5`).\n"
+    )
+    lines.append(
+        "| Candidate Config | Preset | Layer | Shape | Elements | Max Abs Error | Max Rel Error | Mismatches | Status |"
+    )
+    lines.append("| --- | --- | --- | --- | ---: | ---: | ---: | ---: | --- |")
+    for cid, c in cand_cfgs:
+      for rec in c["parity"]:
+        if "max_abs_error" not in rec:
+          continue
+        status_str = "**PASS**" if rec.get("passed") else "**FAIL**"
+        shape_str = "×".join(str(d) for d in (rec.get("shape") or []))
+        lines.append(
+            f"| `{cid}` | `{rec.get('preset', '')}` | `{rec.get('layer', '')}` | "
+            f"`{shape_str}` | {rec.get('total_elements', 0):,} | "
+            f"{rec.get('max_abs_error', 0.0):.2e} | {rec.get('max_rel_error', 0.0):.2e} | "
+            f"{rec.get('mismatch_count', 0)} | {status_str} |"
+        )
+    lines.append("")
+
+  lines.append("![Layer Latency Breakdown](layer_latency.png)\n")
+  lines.append("![Layer Roofline Profile](layer_roofline.png)\n")
+  return "\n".join(lines) + "\n"
+
+
 def timeline_chart(path: Path, cfg_ids, cfg_runs, native=False):
   if native:
     return native_timeline_chart(path, cfg_ids, cfg_runs)
@@ -1118,6 +1455,7 @@ def main(argv=None) -> int:
   agg = {cid: describe_cfg(cfg_runs[cid]) for cid in cfg_ids}
   sequence = sequence_data(runs, suite, args.since)
   prefix_cache = prefix_cache_data(runs, suite, cfg_runs, agg, args.since)
+  layer = layer_data(load_layer(args.results, args.machine), suite, args.since)
 
   # ---- accuracy: latest complete set of shards per (config, task, limit)
   acc_rows, acc_preds = merge_accuracy(load_accuracy(args.results, args.machine), agg)
@@ -1128,23 +1466,25 @@ def main(argv=None) -> int:
   repro_tbl, repro_cross = repro_rows(repro, cfg_ids) if repro else ([], [])
 
   # ---- charts
-  bar_chart(out / "throughput.png", cfg_ids, agg, [_h("prefill_tps"), _h("decode_tps")], "Throughput")
-  bar_chart(out / "latency.png", cfg_ids, agg, [_h("ttft_ms"), _h("e2e_ms"), _h("itl_p99_ms")], "Latency")
-  bar_chart(out / "cpu.png", cfg_ids, agg,
-            [_h("cpu_cores_prefill"), _h("cpu_cores_decode"), _h("cpu_seconds")], "CPU use")
-  if native:
-    bar_chart(out / "gpu.png", cfg_ids, agg, [_h("gpu_util_prefill"), _h("gpu_util_decode")],
-              "GPU utilization (system-wide IOAccelerator counter; indicator only)")
-    bar_chart(out / "memory.png", cfg_ids, agg,
-              [GPU_MEM_DELTA, _h("footprint_max_mb"), _h("rss_max_mb")], "Memory")
-  else:
-    bar_chart(out / "memory.png", cfg_ids, agg,
-              [_h("rss_anon_max_mb"), _h("rss_file_max_mb"), _h("pss_max_mb")], "Memory")
-  timeline_chart(out / "timeline.png", cfg_ids, cfg_runs, native)
+  if cfg_ids:
+    bar_chart(out / "throughput.png", cfg_ids, agg, [_h("prefill_tps"), _h("decode_tps")], "Throughput")
+    bar_chart(out / "latency.png", cfg_ids, agg, [_h("ttft_ms"), _h("e2e_ms"), _h("itl_p99_ms")], "Latency")
+    bar_chart(out / "cpu.png", cfg_ids, agg,
+              [_h("cpu_cores_prefill"), _h("cpu_cores_decode"), _h("cpu_seconds")], "CPU use")
+    if native:
+      bar_chart(out / "gpu.png", cfg_ids, agg, [_h("gpu_util_prefill"), _h("gpu_util_decode")],
+                "GPU utilization (system-wide IOAccelerator counter; indicator only)")
+      bar_chart(out / "memory.png", cfg_ids, agg,
+                [GPU_MEM_DELTA, _h("footprint_max_mb"), _h("rss_max_mb")], "Memory")
+    else:
+      bar_chart(out / "memory.png", cfg_ids, agg,
+                [_h("rss_anon_max_mb"), _h("rss_file_max_mb"), _h("pss_max_mb")], "Memory")
+    timeline_chart(out / "timeline.png", cfg_ids, cfg_runs, native)
   if sequence:
     sequence_charts(out, sequence)
   if prefix_cache:
     prefix_cache_chart(out / "prefix_cache.png", prefix_cache)
+  has_layer_lat, has_layer_roof = layer_charts(out, layer) if layer else (False, False)
   sweep_thread_runs = thread_scaling_runs(runs, suite, cfg_runs, args.since)
   has_scaling = scaling_chart(
       out / "thread_scaling.png", sweep_thread_runs, args.machine)
@@ -1157,7 +1497,8 @@ def main(argv=None) -> int:
       ("thread_scaling.png", has_scaling), ("pareto.png", has_pareto),
       ("prefix_cache.png", bool(prefix_cache)), ("accuracy.png", bool(acc_rows)),
       ("sequence_prefill.png", bool(sequence)), ("sequence_decode.png", bool(sequence)),
-      ("gpu.png", native),
+      ("layer_latency.png", has_layer_lat), ("layer_roofline.png", has_layer_roof),
+      ("gpu.png", native and bool(cfg_ids)),
   ):
     if not present:
       (out / name).unlink(missing_ok=True)
@@ -1186,7 +1527,8 @@ def main(argv=None) -> int:
     })
   hist_path = args.out / "history" / suite["name"] / f"{args.machine}.jsonl"
   history = update_history(hist_path, entries)
-  history_chart(out / "history.png", [h for h in history if h["machine"] == args.machine])
+  if history:
+    history_chart(out / "history.png", [h for h in history if h["machine"] == args.machine])
   changes = history_changes(history, report_id)
 
   # ---- data.json (committed alongside the report: raw per-request metrics)
@@ -1196,6 +1538,7 @@ def main(argv=None) -> int:
                             "aggregate": agg[cid]} for cid in cfg_ids},
           "sequence_sweep": sequence,
           "prefix_cache": prefix_cache,
+          "layer_benchmarks": layer,
           "accuracy": acc_rows, "accuracy_agreement": agreement,
           "reproducibility": {"rows": repro_tbl, "cross_framework": repro_cross}}
   (out / "data.json").write_text(_scrub(json.dumps(data, indent=1, default=str), args) + "\n")
@@ -1208,7 +1551,7 @@ def main(argv=None) -> int:
   md_text = _scrub(render_markdown(
       suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, has_scaling, history, changes,
       hist_path, extra, agreement, (repro_tbl, repro_cross), sequence, prefix_cache,
-      has_pareto=has_pareto), args)
+      has_pareto=has_pareto, layer=layer), args)
   (out / "README.md").write_text(md_text, encoding="utf-8")
   html_doc = markdown_to_html(md_text, base_dir=out, embed_images=True)
   (out / "README.html").write_text(html_doc, encoding="utf-8")
@@ -1860,80 +2203,96 @@ def detailed_metrics_section(suite, args, cfg_ids, cfg_runs, agg):
 
 def render_markdown(suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, has_scaling,
                     history, changes, hist_path, extra, agreement=(), repro=([], []), sequence=None,
-                    prefix_cache=None, has_pareto=False):
+                    prefix_cache=None, has_pareto=False, layer=None):
   L = []
   w = suite["workload"]
-  first = cfg_runs[cfg_ids[0]][0]["meta"]
-  sysinfo = _read_json(cfg_runs[cfg_ids[0]][0]["dir"] / "sysinfo.json") or {}
+  if cfg_ids:
+    first = cfg_runs[cfg_ids[0]][0]["meta"]
+    sysinfo = _read_json(cfg_runs[cfg_ids[0]][0]["dir"] / "sysinfo.json") or {}
+  elif layer and layer.get("configs"):
+    first_lcfg = next(iter(layer["configs"].values()))
+    first = first_lcfg.get("meta") or {"build": {}}
+    sysinfo = _read_json(Path(first_lcfg["run_dir"]) / "sysinfo.json") or {}
+  else:
+    first = {"build": {}}
+    sysinfo = {}
   L.append(f"# {suite['name']} on {args.machine} — {args.date}\n")
   sweep_count = sum(len(c["runs"]) for p in (sequence or {}).get("points", {}).values()
                     for c in p["configs"].values())
   pc_count = sum(len(c["runs"]) for c in (prefix_cache or {}).get("configs", {}).values())
+  layer_count = len((layer or {}).get("configs") or {})
   extra_procs = []
   if sweep_count:
     extra_procs.append(f"{sweep_count} input-length sweep processes")
   if pc_count:
     extra_procs.append(f"{pc_count} prefix-cache processes")
+  if layer_count:
+    extra_procs.append(f"{layer_count} layer-level benchmark processes")
   process_description = ("benchmark processes" if not extra_procs else
                          "headline benchmark processes plus " + " and ".join(extra_procs))
   L.append(f"> Generated by `python3 -m aeb.report` from {sum(len(v) for v in cfg_runs.values())} "
            f"{process_description}. Raw per-request data: [data.json](data.json). "
            f"Methodology: [benchmark_methodology.md](../../docs/benchmark_methodology.md).\n")
   L.append(suite["description"] + "\n")
-  L.append(summary_by_dtype_section(suite, cfg_ids, cfg_runs, agg, acc_rows, has_pareto=has_pareto))
+  if cfg_ids:
+    L.append(summary_by_dtype_section(suite, cfg_ids, cfg_runs, agg, acc_rows, has_pareto=has_pareto))
 
   L.append("## Results\n")
-  L.append("### Throughput\n")
-  L.append("![Throughput](throughput.png)\n")
-  if sequence:
-    L.append(sequence_section(sequence))
-  L.append("### Latency\n")
-  L.append("![Latency](latency.png)\n")
-  if prefix_cache:
-    L.append(prefix_cache_section(prefix_cache))
-  if getattr(args, "_native", False):
-    L.append("### GPU\n")
-    L.append("![GPU](gpu.png)\n")
-  L.append("### CPU\n")
-  L.append("![CPU](cpu.png)\n")
-  L.append("### Memory\n")
-  L.append("![Memory](memory.png)\n")
-  if getattr(args, "_native", False):
-    L.append("### Memory, CPU and GPU over time\n")
-    L.append("Combined timelines (one round-0 process per configuration): load, warm-up "
-             "and measured requests. Solid = phys_footprint, dashed = resident size. "
-             "phys_footprint is the process's private memory "
-             "as macOS accounts it; it includes some Metal allocations (MLX's buffers) but not "
-             "others (llama.cpp's no-copy mmap'd weights, LiteRT-LM's and BaseRT's GPU weights), "
-             "so compare memory with the GPU in-use memory above the pre-load baseline. GPU "
-             "utilization is the system-wide IOAccelerator counter.\n")
-  else:
-    L.append("### Memory and CPU over time\n")
-    L.append("Combined timeline (round-0 process per configuration: model load, warm-up "
-             "and measured requests) showing total RSS and active CPU cores. File-backed "
-             "RSS is mmap'd model pages (shared, reclaimable); anonymous RSS is private "
-             "memory (KV cache, activations, repacked or converted weights).\n")
-  L.append("![Timeline](timeline.png)\n")
+  if cfg_ids:
+    L.append("### Throughput\n")
+    L.append("![Throughput](throughput.png)\n")
+    if sequence:
+      L.append(sequence_section(sequence))
+    L.append("### Latency\n")
+    L.append("![Latency](latency.png)\n")
+    if prefix_cache:
+      L.append(prefix_cache_section(prefix_cache))
+  if layer:
+    L.append(layer_section(layer))
+  if cfg_ids:
+    if getattr(args, "_native", False):
+      L.append("### GPU\n")
+      L.append("![GPU](gpu.png)\n")
+    L.append("### CPU\n")
+    L.append("![CPU](cpu.png)\n")
+    L.append("### Memory\n")
+    L.append("![Memory](memory.png)\n")
+    if getattr(args, "_native", False):
+      L.append("### Memory, CPU and GPU over time\n")
+      L.append("Combined timelines (one round-0 process per configuration): load, warm-up "
+               "and measured requests. Solid = phys_footprint, dashed = resident size. "
+               "phys_footprint is the process's private memory "
+               "as macOS accounts it; it includes some Metal allocations (MLX's buffers) but not "
+               "others (llama.cpp's no-copy mmap'd weights, LiteRT-LM's and BaseRT's GPU weights), "
+               "so compare memory with the GPU in-use memory above the pre-load baseline. GPU "
+               "utilization is the system-wide IOAccelerator counter.\n")
+    else:
+      L.append("### Memory and CPU over time\n")
+      L.append("Combined timeline (round-0 process per configuration: model load, warm-up "
+               "and measured requests) showing total RSS and active CPU cores. File-backed "
+               "RSS is mmap'd model pages (shared, reclaimable); anonymous RSS is private "
+               "memory (KV cache, activations, repacked or converted weights).\n")
+    L.append("![Timeline](timeline.png)\n")
 
-  if has_scaling:
-    L.append("### Thread scaling\n")
-    L.append("![Thread scaling](thread_scaling.png)\n")
+    if has_scaling:
+      L.append("### Thread scaling\n")
+      L.append("![Thread scaling](thread_scaling.png)\n")
 
-  L.append(detailed_metrics_section(suite, args, cfg_ids, cfg_runs, agg))
+    L.append(detailed_metrics_section(suite, args, cfg_ids, cfg_runs, agg))
 
-  # generated text on the timing prompt
-  L.append("### Generated text on the timing prompt\n")
-  L.append("Greedy decoding should be deterministic within a configuration. Different "
-           "configurations may legitimately diverge (different activation/KV quantization and "
-           "kernels change near-tie logits); the accuracy gate below is the validity check.\n")
-  L.append("| Config | Identical across all measured requests | First 140 characters |")
-  L.append("| --- | --- | --- |")
-  for cid in cfg_ids:
-    texts = [r.get("text", "") for run in cfg_runs[cid] for r in _requests(run["dir"])
-             if r.get("measured")]
-    sample = (texts[0] if texts else "")[:140].replace("\n", " ⏎ ").replace("|", "\\|")
-    L.append(f"| `{cid}` | {'yes' if texts and len(set(texts)) == 1 else f'no ({len(set(texts))} variants)'} | {sample} |")
-  L.append("")
+    # generated text on the timing prompt
+    L.append("### Generated text on the timing prompt\n")
+    L.append("Greedy decoding should be deterministic within a configuration. Different "
+             "configurations may legitimately diverge (different activation/KV quantization and "
+             "kernels change near-tie logits); the accuracy gate below is the validity check.\n")
+    L.append("| Config | Identical across all measured requests | First 140 characters |")
+    L.append("| --- | --- | --- |")
+    for cid in cfg_ids:
+      texts = [r.get("text", "") for run in cfg_runs[cid] for r in _requests(run["dir"])
+               if r.get("measured")]
+      sample = (texts[0] if texts else "")[:140].replace("\n", " ⏎ ").replace("|", "\\|")
+      L.append(f"| `{cid}` | {'yes' if texts and len(set(texts)) == 1 else f'no ({len(set(texts))} variants)'} | {sample} |")
+    L.append("")
 
   # accuracy
   if acc_rows:
@@ -2039,6 +2398,10 @@ def render_markdown(suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, ha
   for cid in cfg_ids:
     m = cfg_runs[cid][0]["meta"]
     builds[m["framework"]] = m["build"]
+  for lcfg in ((layer or {}).get("configs") or {}).values():
+    m = lcfg.get("meta") or {}
+    if m.get("framework") and m.get("build"):
+      builds.setdefault(m["framework"], m["build"])
   L.append("| Item | Value |\n| --- | --- |")
   L.append(f"| Machine | {args.machine} — {_sanitize_machine_notes(first.get('machine_notes', ''))} |")
   cpu = sysinfo.get("cpu", {})
@@ -2075,9 +2438,12 @@ def render_markdown(suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, ha
            f"greedy tokens (fixed length), context {w['ctx']}, {w['warmup']} warm-up + "
            f"{w['repetitions']} measured requests per process, {suite.get('rounds', 3)} processes per "
            f"config interleaved A-B-…/…-B-A |")
-  sha = {cfg_runs[cid][0]["meta"].get("workload", {}).get("prompt_ids_sha256") for cid in cfg_ids}
-  L.append(f"| Prompt identity | {'identical token ids in every config' if len(sha) == 1 else 'DIFFERENT token ids: ' + ', '.join(map(str, sha))} "
-           f"(sha256 `{str(next(iter(sha)))[:16]}…`) |\n")
+  if cfg_ids:
+    sha = {cfg_runs[cid][0]["meta"].get("workload", {}).get("prompt_ids_sha256") for cid in cfg_ids}
+    L.append(f"| Prompt identity | {'identical token ids in every config' if len(sha) == 1 else 'DIFFERENT token ids: ' + ', '.join(map(str, sha))} "
+             f"(sha256 `{str(next(iter(sha)))[:16]}…`) |\n")
+  else:
+    L.append("")
 
   # configs
   L.append("## Configurations\n")
@@ -2088,6 +2454,16 @@ def render_markdown(suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, ha
     args_ = args_.replace(m.get("model_path") or "\0", "<model>")
     L.append(f"| `{cid}` | {_track(suite, cid)} | `{Path(m.get('model_path') or '').name}` "
              f"(sha256 `{str(m.get('model_sha256'))[:12]}`) | `{args_}` |")
+  for cid, lcfg in ((layer or {}).get("configs") or {}).items():
+    m = lcfg.get("meta") or {}
+    p = m.get("params") or {}
+    bin_name = Path(str(m.get("binary") or "layer_bench")).name
+    cmd_str = (
+        f"{bin_name} --backend={lcfg.get('backend', '')} "
+        f"--batch_size={p.get('batch_size', 1)} --seq_len={p.get('seq_len', 1024)} "
+        f"--threads={p.get('threads', 32)} --seed={p.get('seed', 1234)}"
+    )
+    L.append(f"| `{cid}` | `layer` | `(synthetic seeded weights)` | `{cmd_str}` |")
   L.append("")
 
   if getattr(args, "_quant_md", ""):
@@ -2119,6 +2495,9 @@ def render_markdown(suite, args, report_id, cfg_ids, cfg_runs, agg, acc_rows, ha
     for cid, c in point["configs"].items():
       for e in c["errors"]:
         checks.append(f"Sweep N={n}, `{cid}`: process excluded — {e}")
+  for cid, lcfg in ((layer or {}).get("configs") or {}).items():
+    if lcfg.get("parity_all_passed") is False:
+      checks.append(f"Layer parity `{cid}`: one or more `LMLB` tensor comparisons failed.")
   L.append("\n".join(f"- {c}" for c in checks) if checks else "- All runs completed; no outliers; "
            "decode CV ≤ 5% everywhere.")
   L.append("")
@@ -2138,6 +2517,7 @@ def reproduction_section(suite: dict, machine: str, suite_filename: str, cfg_ids
   service_map = {
       "llama.cpp": "harness-llama-cpp",
       "litert-lm": "harness-litert-lm",
+      "litert-tensor": "harness-litert-tensor",
       "onnxruntime": "harness-onnxruntime",
       "xla": "harness-xla",
       "openvino": "harness-openvino",
@@ -2145,6 +2525,7 @@ def reproduction_section(suite: dict, machine: str, suite_filename: str, cfg_ids
   repo_urls = {
       "llama.cpp": "[`ggml-org/llama.cpp`](https://github.com/ggml-org/llama.cpp)",
       "litert-lm": "[`google-ai-edge/LiteRT-LM`](https://github.com/google-ai-edge/LiteRT-LM)",
+      "litert-tensor": "[`google-ai-edge/LiteRT`](https://github.com/google-ai-edge/LiteRT) (`//tensor` + `XNNPACK` / `YNNPACK`)",
       "xla": "[`openxla/xla`](https://github.com/openxla/xla) / [`jax-ml/jax`](https://github.com/jax-ml/jax) / [`google/tunix`](https://github.com/google/tunix) / [`google/qwix`](https://github.com/google/qwix)",
       "openvino": "[`openvinotoolkit/openvino.genai`](https://github.com/openvinotoolkit/openvino.genai)",
       "onnxruntime": "[`microsoft/onnxruntime-genai`](https://github.com/microsoft/onnxruntime-genai)",
@@ -2309,11 +2690,16 @@ def reproduction_section(suite: dict, machine: str, suite_filename: str, cfg_ids
         "./scripts/fetch_results.sh <user@hostname>\n"
         "```\n"
     )
+  layer_line = (
+      f"python3 scripts/suite.py layer        --machine {machine} --suite {suite_rel}\n"
+      if suite.get("layer_benchmarks") else ""
+  )
   L.append(
       f"```bash\n"
       f"# Step-by-step suite phases on {machine}:\n"
       f"python3 scripts/suite.py perf         --machine {machine} --suite {suite_rel}\n"
       f"python3 scripts/suite.py prefix-cache --machine {machine} --suite {suite_rel}\n"
+      f"{layer_line}"
       f"python3 scripts/suite.py accuracy     --machine {machine} --suite {suite_rel} --parallel 2 --shards 2 --threads half\n"
       f"python3 scripts/suite.py sequence     --machine {machine} --suite {suite_rel}\n"
       f"python3 scripts/suite.py repro        --machine {machine} --suite {suite_rel}\n"

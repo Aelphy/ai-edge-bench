@@ -1,6 +1,6 @@
 {
   "name": "gemma4-e2b-cpu-sapphire-rapids",
-  "description": "Gemma 4 E2B on x86 Intel Xeon AMX CPU (NUMA node 0 physical cores) across FP32, BF16, INT8, and INT4/INT2 model precisions:\n\n- **OpenXLA** (with YNNPACK)\n- **LiteRT-LM** (with XNNPACK and YNNPACK)\n- **llama.cpp** (AVX-512 + AMX)\n- **OpenVINO GenAI**\n- **ONNX Runtime GenAI**\n\nFrameworks are only benchmarked on data types where pre-built model artifacts exist (e.g., `llama.cpp` is omitted from FP32 because no pre-built F32 GGUF is published in `ggml-org/gemma-4-E2B-it-GGUF`).",
+  "description": "Gemma 4 E2B on x86 Intel Xeon AMX CPU (NUMA node 0 physical cores) across FP32, BF16, INT8, and INT4/INT2 model precisions:\n\n- **LiteRT Tensor API** (with XNNPACK and YNNPACK)\n- **OpenXLA** (with YNNPACK)\n- **LiteRT-LM** (with XNNPACK and YNNPACK)\n- **llama.cpp** (AVX-512 + AMX)\n- **OpenVINO GenAI**\n- **ONNX Runtime GenAI**\n\nFrameworks are only benchmarked on data types where pre-built model artifacts exist (e.g., `llama.cpp` is omitted from FP32 because no pre-built F32 GGUF is published in `ggml-org/gemma-4-E2B-it-GGUF`).",
   "references": "references/gemma-4-E2B-it.json",
   "models": {
     "litertlm": "/models/litert-community/gemma-4-E2B-it-litert-lm/gemma-4-E2B-it.litertlm",
@@ -60,6 +60,8 @@
       "llama.cpp/stock-q4_0",
       "litert-lm/matched",
       "litert-lm/fastest",
+      "litert-tensor/fp32-xnnpack",
+      "litert-tensor/fp32-ynnpack",
       "xla/matched-ynnpack",
       "openvino/int4",
       "onnxruntime/q4_k_m"
@@ -106,9 +108,39 @@
       "llama.cpp/stock-q4_0",
       "litert-lm/matched",
       "litert-lm/fastest",
+      "litert-tensor/fp32-xnnpack",
+      "litert-tensor/fp32-ynnpack",
       "xla/matched-ynnpack",
       "openvino/int4",
       "onnxruntime/q4_k_m"
+    ]
+  },
+  "layer_benchmarks": {
+    "presets": [
+      "Gemma4-E2B",
+      "Gemma4-E2B-WideMLP"
+    ],
+    "batch_size": 1,
+    "seq_len": 1024,
+    "threads": "{threads}",
+    "min_time": "0.2s",
+    "seed": 1234,
+    "rounds": 1,
+    "configs": [
+      {
+        "id": "litert-tensor/xnnpack",
+        "framework": "litert-tensor",
+        "backend": "xnnpack",
+        "dtype": "fp32",
+        "parity_role": "reference"
+      },
+      {
+        "id": "litert-tensor/ynnpack",
+        "framework": "litert-tensor",
+        "backend": "ynnpack",
+        "dtype": "fp32",
+        "parity_role": "candidate"
+      }
     ]
   },
   "configs": [
@@ -436,6 +468,51 @@
       "accuracy": {
         "mmlu_limit": 2000
       }
+    },
+    {
+      "id": "litert-tensor/fp32-xnnpack",
+      "framework": "litert-tensor",
+      "dtype": "fp32",
+      "track": "reference",
+      "args": [
+        "--model",
+        "{hf_bf16}",
+        "--threads",
+        "{fastest.litert-tensor.threads}",
+        "--ctx",
+        "{ctx}",
+        "--dtype",
+        "fp32",
+        "--cache-dir",
+        "/results/_cache/litert-tensor-fp32-xnnpack"
+      ],
+      "accuracy": {
+        "mmlu_limit": 2000,
+        "gsm8k_limit": 250
+      }
+    },
+    {
+      "id": "litert-tensor/fp32-ynnpack",
+      "framework": "litert-tensor",
+      "dtype": "fp32",
+      "track": "reference",
+      "args": [
+        "--model",
+        "{hf_bf16}",
+        "--threads",
+        "{fastest.litert-tensor-ynnpack.threads}",
+        "--ctx",
+        "{ctx}",
+        "--dtype",
+        "fp32",
+        "--ynnpack",
+        "--cache-dir",
+        "/results/_cache/litert-tensor-fp32-ynnpack"
+      ],
+      "accuracy": {
+        "mmlu_limit": 2000,
+        "gsm8k_limit": 250
+      }
     }
   ],
   "machines": {
@@ -453,6 +530,14 @@
         },
         "litert-lm-ynnpack": {
           "threads": 16,
+          "selected_by": "NUMA node 0 thread scaling sweep t{4,8,16,20,32,40} (YNNPACK)"
+        },
+        "litert-tensor": {
+          "threads": 32,
+          "selected_by": "NUMA node 0 thread scaling sweep t{4,8,16,20,32,40} (XNNPACK)"
+        },
+        "litert-tensor-ynnpack": {
+          "threads": 32,
           "selected_by": "NUMA node 0 thread scaling sweep t{4,8,16,20,32,40} (YNNPACK)"
         },
         "xla": {

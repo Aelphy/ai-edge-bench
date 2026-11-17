@@ -766,5 +766,279 @@ class LiteRtLmDriverTest(unittest.TestCase):
     self._run_driver_case(out_param_mode=False)
 
 
+
+class LayerBenchmarkTest(unittest.TestCase):
+
+  def test_lmlb_parity_binary_roundtrip_and_comparison(self):
+    from aeb import layer
+    with tempfile.TemporaryDirectory() as d:
+      ref_p = Path(d) / "ref.bin"
+      cand_ok_p = Path(d) / "cand_ok.bin"
+      cand_bad_p = Path(d) / "cand_bad.bin"
+
+      vals_ref = [0.25, -1.5, 3.125, 0.0, 2.0, -0.75]
+      vals_ok = [0.25 + 1e-6, -1.5 - 1e-6, 3.125, 0.0, 2.0, -0.75]
+      vals_bad = [0.25, -1.5, 3.5, 0.0, 2.0, -0.75]
+
+      layer.write_parity_dump(ref_p, [1, 2, 3], vals_ref)
+      layer.write_parity_dump(cand_ok_p, [1, 2, 3], vals_ok)
+      layer.write_parity_dump(cand_bad_p, [1, 2, 3], vals_bad)
+
+      shape, values = layer.read_parity_dump(ref_p)
+      self.assertEqual(shape, [1, 2, 3])
+      for a, b in zip(values, vals_ref):
+        self.assertAlmostEqual(a, b, places=6)
+
+      res_ok = layer.compare_parity_dumps(ref_p, cand_ok_p, rtol=1e-4, atol=1e-5)
+      self.assertTrue(res_ok["passed"])
+      self.assertEqual(res_ok["mismatch_count"], 0)
+      self.assertEqual(res_ok["total_elements"], 6)
+
+      res_bad = layer.compare_parity_dumps(ref_p, cand_bad_p, rtol=1e-4, atol=1e-5)
+      self.assertFalse(res_bad["passed"])
+      self.assertEqual(res_bad["mismatch_count"], 1)
+      self.assertAlmostEqual(res_bad["max_abs_error"], 0.375, places=5)
+
+  def test_parse_google_benchmark_entry(self):
+    from aeb import layer
+    entry = {
+        "name": "BM_TransformerBlock_Prefill/Gemma4-E2B/B:1/S:1024/Threads:32/real_time",
+        "run_type": "iteration",
+        "iterations": 25,
+        "real_time": 12.5,
+        "cpu_time": 380.0,
+        "time_unit": "ms",
+        "Theoretical_FLOPs": 68161765376.0,
+        "FLOPS": 5.45294123e12,
+        "Theoretical_Bytes": 402685952.0,
+        "Bytes/s": 3.2214876e10,
+        "ArithmeticIntensity_FLOPs/Byte": 169.2678,
+        "Workspace_Peak_Bytes": 16777216.0,
+        "Heap_Allocated_Bytes": 0.0,
+    }
+    rec = layer.parse_benchmark_entry(entry)
+    self.assertIsNotNone(rec)
+    self.assertEqual(rec["preset"], "Gemma4-E2B")
+    self.assertEqual(rec["layer"], "TransformerBlock_Prefill")
+    self.assertEqual(rec["batch_size"], 1)
+    self.assertEqual(rec["seq_len"], 1024)
+    self.assertEqual(rec["threads"], 32)
+    self.assertAlmostEqual(rec["real_time_ms"], 12.5)
+    self.assertAlmostEqual(rec["gflops"], 5452.94123, places=3)
+    self.assertAlmostEqual(rec["gbps"], 32.214876, places=3)
+    self.assertAlmostEqual(rec["arithmetic_intensity"], 169.2678, places=3)
+
+  def test_suite_layer_commands_and_skip_existing(self):
+    import suite as suite_mod
+    path = ROOT.parents[1] / "suites" / "gemma4-e2b-cpu-sapphire-rapids.json"
+    if not path.is_file():
+      raise unittest.SkipTest("suites/ not mounted")
+    s, ctx = suite_mod.load(path, "sapphire-rapids")
+    with tempfile.TemporaryDirectory() as d:
+      res = Path(d)
+      cmds = suite_mod.layer_commands(
+          s, ctx, "sapphire-rapids", None, False, False, results_dir=res, skip_existing=True
+      )
+      self.assertEqual(len(cmds), 2)
+      self.assertEqual(cmds[0][0], "layer litert-tensor/xnnpack")
+      self.assertIn("--dump-parity-dir", cmds[0][1])
+      self.assertEqual(cmds[1][0], "layer litert-tensor/ynnpack")
+      self.assertIn("--compare-parity-dir", cmds[1][1])
+
+      # Mark litert-tensor/xnnpack complete -> only ynnpack remains
+      xnn_d = res / "sapphire-rapids" / "layer" / "litert-tensor" / "xnnpack" / "r0"
+      xnn_d.mkdir(parents=True)
+      (xnn_d / "meta.json").write_text(json.dumps({"round": 0}))
+      (xnn_d / "summary.json").write_text(json.dumps({
+          "status": "ok", "n_layers": 14, "parity_all_passed": True
+      }))
+      cmds_rem = suite_mod.layer_commands(
+          s, ctx, "sapphire-rapids", None, False, False, results_dir=res, skip_existing=True
+      )
+      self.assertEqual([lbl for lbl, _ in cmds_rem], ["layer litert-tensor/ynnpack"])
+
+  def test_report_layer_data_charts_and_section(self):
+    try:
+      from aeb import report
+    except ModuleNotFoundError:
+      raise unittest.SkipTest("matplotlib not installed")
+    suite = {
+        "name": "gemma4-e2b-cpu-sapphire-rapids",
+        "description": "Test suite",
+        "rounds": 1,
+        "workload": {"prompt_tokens": 1024, "gen_tokens": 128, "ctx": 4096, "warmup": 1, "repetitions": 1},
+        "configs": [],
+        "layer_benchmarks": {
+            "configs": [
+                {"id": "litert-tensor/xnnpack", "framework": "litert-tensor", "backend": "xnnpack"},
+                {"id": "litert-tensor/ynnpack", "framework": "litert-tensor", "backend": "ynnpack"},
+            ]
+        },
+    }
+    xnn_run = {
+        "dir": Path("/results/sapphire-rapids/layer/litert-tensor/xnnpack/r0"),
+        "meta": {
+            "framework": "litert-tensor",
+            "label": "xnnpack",
+            "backend": "xnnpack",
+            "track": "layer",
+            "notes": "suite=gemma4-e2b-cpu-sapphire-rapids",
+            "started_at": "2026-10-27T00:00:00Z",
+            "build": {"ref": "HEAD", "commit": "abc123456789", "harness_sha256": "deadbeef", "repo_rev": "1234"},
+            "params": {"batch_size": 1, "seq_len": 1024, "threads": 32},
+            "cmd": ["/opt/litert-tensor/bin/layer_bench_xnnpack"],
+        },
+        "summary": {
+            "status": "ok",
+            "backend": "xnnpack",
+            "n_benchmarks": 1,
+            "parity_all_passed": True,
+            "parity": [{"preset": "Gemma4-E2B", "layer": "RMSNorm", "role": "reference", "passed": True}],
+            "layers": [{
+                "preset": "Gemma4-E2B",
+                "layer": "RMSNorm",
+                "batch_size": 1,
+                "seq_len": 1024,
+                "threads": 32,
+                "real_time_ms": 0.120,
+                "cpu_time_ms": 3.5,
+                "flops_per_iter": 4718592.0,
+                "gflops": 39.32,
+                "bytes_per_iter": 12589056.0,
+                "gbps": 104.91,
+                "arithmetic_intensity": 0.3748,
+                "workspace_peak_bytes": 0.0,
+                "rss_delta_bytes": 0.0,
+            }],
+        },
+    }
+    ynn_run = {
+        "dir": Path("/results/sapphire-rapids/layer/litert-tensor/ynnpack/r0"),
+        "meta": {
+            "framework": "litert-tensor",
+            "label": "ynnpack",
+            "backend": "ynnpack",
+            "track": "layer",
+            "notes": "suite=gemma4-e2b-cpu-sapphire-rapids",
+            "started_at": "2026-10-27T00:01:00Z",
+            "build": {"ref": "HEAD", "commit": "abc123456789", "harness_sha256": "deadbeef", "repo_rev": "1234"},
+            "params": {"batch_size": 1, "seq_len": 1024, "threads": 32},
+            "cmd": ["/opt/litert-tensor/bin/layer_bench_ynnpack"],
+        },
+        "summary": {
+            "status": "ok",
+            "backend": "ynnpack",
+            "n_benchmarks": 1,
+            "parity_all_passed": True,
+            "parity": [{
+                "preset": "Gemma4-E2B",
+                "layer": "RMSNorm",
+                "role": "candidate",
+                "passed": True,
+                "shape": [1, 1024, 1536],
+                "total_elements": 1572864,
+                "max_abs_error": 1.19e-07,
+                "max_rel_error": 2.38e-07,
+                "mismatch_count": 0,
+            }],
+            "layers": [{
+                "preset": "Gemma4-E2B",
+                "layer": "RMSNorm",
+                "batch_size": 1,
+                "seq_len": 1024,
+                "threads": 32,
+                "real_time_ms": 0.080,
+                "cpu_time_ms": 2.4,
+                "flops_per_iter": 4718592.0,
+                "gflops": 58.98,
+                "bytes_per_iter": 12589056.0,
+                "gbps": 157.36,
+                "arithmetic_intensity": 0.3748,
+                "workspace_peak_bytes": 0.0,
+                "rss_delta_bytes": 0.0,
+            }],
+        },
+    }
+    ldata = report.layer_data([xnn_run, ynn_run], suite)
+    self.assertEqual(list(ldata["configs"]), ["litert-tensor/xnnpack", "litert-tensor/ynnpack"])
+    md = report.layer_section(ldata)
+    self.assertIn("Layer-level microbenchmarks & Roofline breakdown (`layer_ml_bench`)", md)
+    self.assertIn("**1.50×**", md)
+    self.assertIn("Cross-Backend Numerical Parity (`LMLB` Binary Tensor Verification)", md)
+    self.assertIn("**PASS**", md)
+    with tempfile.TemporaryDirectory() as d:
+      has_lat, has_roof = report.layer_charts(Path(d), ldata)
+      self.assertTrue(has_lat)
+      self.assertTrue(has_roof)
+      self.assertGreater((Path(d) / "layer_latency.png").stat().st_size, 1000)
+      self.assertGreater((Path(d) / "layer_roofline.png").stat().st_size, 1000)
+
+  def test_litert_tensor_driver_and_suite_wiring(self):
+    from aeb import driver as drv_mod
+    from aeb.drivers import litert_tensor_driver as ltd
+
+    cmd = drv_mod.driver_command(
+        "litert-tensor",
+        ["--model", "/models/google/gemma-4-E2B-it", "--threads", "32", "--ynnpack"],
+    )
+    self.assertEqual(
+        cmd,
+        [
+            "python3",
+            "-m",
+            "aeb.drivers.litert_tensor_driver",
+            "--model",
+            "/models/google/gemma-4-E2B-it",
+            "--threads",
+            "32",
+            "--ynnpack",
+        ],
+    )
+
+    parsed = ltd.parse_args([
+        "--model",
+        "/models/google/gemma-4-E2B-it",
+        "--threads",
+        "32",
+        "--ctx",
+        "4096",
+        "--dtype",
+        "fp32",
+        "--ynnpack",
+        "--cache-dir",
+        "/results/_cache/litert-tensor-fp32-ynnpack",
+        "--cache-prefix",
+    ])
+    cpp_cmd = ltd.build_cpp_cmd(
+        "/opt/litert-tensor/bin/gemma4_tensor_driver_ynnpack",
+        parsed,
+        "/models/google/gemma-4-E2B-it/tokenizer.model",
+    )
+    self.assertIn("--weights=/models/google/gemma-4-E2B-it", cpp_cmd)
+    self.assertIn("--tokenizer=/models/google/gemma-4-E2B-it/tokenizer.model", cpp_cmd)
+    self.assertIn("--num_threads=32", cpp_cmd)
+    self.assertIn("--ctx=4096", cpp_cmd)
+    self.assertIn("--backend_name=ynnpack", cpp_cmd)
+    self.assertIn("--cache_dir=/results/_cache/litert-tensor-fp32-ynnpack", cpp_cmd)
+    self.assertIn("--cache_prefix=true", cpp_cmd)
+
+    import suite as suite_mod
+    suite_path = ROOT.parents[1] / "suites" / "gemma4-e2b-cpu-sapphire-rapids.json"
+    suite, ctx = suite_mod.load(suite_path, "sapphire-rapids")
+    perf_cmds = suite_mod.perf_commands(
+        suite,
+        ctx,
+        "sapphire-rapids",
+        1,
+        "litert-tensor/fp32-xnnpack,litert-tensor/fp32-ynnpack",
+        False,
+    )
+    self.assertEqual(len(perf_cmds), 2)
+    self.assertEqual(perf_cmds[0][0], "litert-tensor/fp32-xnnpack")
+    self.assertIn("harness-litert-tensor", perf_cmds[0][1])
+    self.assertEqual(perf_cmds[1][0], "litert-tensor/fp32-ynnpack")
+    self.assertIn("--ynnpack", perf_cmds[1][1])
+
+
 if __name__ == "__main__":
   unittest.main()

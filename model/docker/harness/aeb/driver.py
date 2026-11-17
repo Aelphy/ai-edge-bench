@@ -14,7 +14,16 @@ import sys
 import threading
 from pathlib import Path
 
-FRAMEWORKS = ("llama.cpp", "litert-lm", "onnxruntime", "xla", "openvino", "mlx", "basert")
+FRAMEWORKS = (
+    "llama.cpp",
+    "litert-lm",
+    "litert-tensor",
+    "onnxruntime",
+    "xla",
+    "openvino",
+    "mlx",
+    "basert",
+)
 
 
 def driver_command(framework: str, driver_args: list[str]) -> list[str]:
@@ -24,6 +33,8 @@ def driver_command(framework: str, driver_args: list[str]) -> list[str]:
     return ["aeb-llama-driver", *driver_args]
   if framework == "litert-lm":
     return ["python3", "-m", "aeb.drivers.litert_lm_driver", *driver_args]
+  if framework == "litert-tensor":
+    return ["python3", "-m", "aeb.drivers.litert_tensor_driver", *driver_args]
   if framework == "onnxruntime":
     return ["python3", "-m", "aeb.drivers.onnxruntime_driver", *driver_args]
   if framework == "xla":

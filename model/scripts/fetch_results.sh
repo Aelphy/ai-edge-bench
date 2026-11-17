@@ -59,11 +59,8 @@ if [[ -z "${HOST}" ]]; then
   exit 1
 fi
 
-SSH_OPTS="${AEB_SSH_OPTS:--o StrictHostKeyChecking=no}"
-SOCK="${HOME}/.ssh/cm-aeb"
-if [[ -S "${SOCK}" ]]; then
-  SSH_OPTS="${SSH_OPTS} -o ControlPath=${SOCK}"
-fi
+SOCK="${HOME}/.ssh/cm-aeb-%h"
+SSH_OPTS="${AEB_SSH_OPTS:--o StrictHostKeyChecking=no -o ControlMaster=auto -o ControlPath=${SOCK} -o ControlPersist=24h}"
 
 mkdir -p ./suites ./results ./reports
 for dir in ./results ./reports; do
